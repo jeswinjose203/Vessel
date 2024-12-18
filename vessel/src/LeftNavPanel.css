@@ -1,0 +1,73 @@
+.left-nav-panel {
+  width: 200px;
+  background-color: #000000;
+  height: 100vh;
+  color: #fff;
+  padding-top: 20px;
+  transition: width 0.3s ease; /* Smooth transition for panel width */
+}
+
+.logo {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.logo-img {
+  width: 100px;
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-list li {
+  padding: 20px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, transform 0.2s; /* Smooth transition */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.nav-list li:hover {
+  background-color: #33354d;
+  color: #00d8ff;
+  transform: scale(1.05); /* Scale effect on hover */
+}
+
+.nav-list li.active {
+  background-color: #454867;
+  color: #00d8ff;
+  transform: scale(1.1); /* Slightly bigger on active */
+}
+
+.nav-list li a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.icon-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  font-size: 36px; /* Larger icon size */
+  margin-bottom: 8px;
+  transition: transform 0.2s ease; /* Smooth transition for icon scaling */
+}
+
+.nav-text {
+  font-size: 14px;
+  font-weight: normal;
+  transition: opacity 0.2s ease; /* Smooth transition for text opacity */
+}
+
+/* Active icon scaling effect */
+.nav-list li.active .icon {
+  transform: scale(1.2); /* Increase icon size on active */
+}

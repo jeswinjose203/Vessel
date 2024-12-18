@@ -1,0 +1,10 @@
+/* src/App.css */
+.App {
+    display: flex;
+  }
+  
+  .content {
+    margin-left: 240px; /* Adjusted to account for the larger left nav */
+    padding: 20px;
+  }
+  
