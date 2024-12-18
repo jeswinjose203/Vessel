@@ -1,10 +1,31 @@
-/* src/App.css */
-.App {
-    display: flex;
+/* Container for the whole layout */
+.app-container {
+    display: flex; /* Use Flexbox to lay out sidebar and content side by side */
+    height: 100vh; /* Full viewport height */
   }
   
+  /* Sidebar style */
+  .left-nav-panel {
+    width: 200px; /* Sidebar width */
+    background-color: #000;
+    color: #fff;
+    height: 100vh;
+    flex-shrink: 0; /* Prevent sidebar from shrinking */
+    position: relative; /* Ensure the sidebar is positioned correctly */
+  }
+  
+  /* Content area style */
   .content {
-    margin-left: 240px; /* Adjusted to account for the larger left nav */
+    flex-grow: 1; /* Content takes the remaining width */
     padding: 20px;
+    overflow: auto;
+    background-color: #f4f4f4;
+    height: 100vh; /* Ensure content area takes full height */
+    box-sizing: border-box; /* Prevent content from overflowing */
+  }
+  
+  /* Optional: Add some padding to the left to prevent content from touching the sidebar */
+  .content {
+    padding-left: 20px;
   }
   
