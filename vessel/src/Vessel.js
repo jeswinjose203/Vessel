@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import { Box, Button, Input } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import VesselEditForm from './VesselEditForm'; // Import the VesselEditForm component
 
 const columns = [
   { field: 'vesselName', headerName: 'Vessel Name', width: 180 },
@@ -59,6 +60,8 @@ const columns = [
 export default function Vessel() {
   const [rows, setRows] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,6 +74,27 @@ export default function Vessel() {
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  const handleEditClick = (row) => {
+    setSelectedRow(row);
+    setOpenDialog(true); // Open the form dialog when editing a row
+  };
+
+  const handleSave = (updatedVessel) => {
+    setRows((prevRows) => {
+      const index = prevRows.findIndex((vessel) => vessel.id === updatedVessel.id);
+      if (index !== -1) {
+        // Update existing vessel
+        const updatedRows = [...prevRows];
+        updatedRows[index] = updatedVessel;
+        return updatedRows;
+      } else {
+        // Add new vessel
+        return [...prevRows, updatedVessel];
+      }
+    });
+    setOpenDialog(false); // Close the dialog after saving
   };
 
   const filteredVessels = rows.filter((vessel) =>
@@ -95,10 +119,32 @@ export default function Vessel() {
 
       <DataGrid
         rows={filteredVessels}
-        columns={columns}
+        columns={[
+          ...columns,
+          {
+            field: 'edit',
+            headerName: 'Edit',
+            width: 100,
+            renderCell: (params) => (
+              <Button
+                variant="outlined"
+                onClick={() => handleEditClick(params.row)}
+              >
+                Edit
+              </Button>
+            ),
+          },
+        ]}
         pageSize={10}
         rowsPerPageOptions={[10, 20, 50]}
         disableSelectionOnClick
+      />
+
+      <VesselEditForm
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        vessel={selectedRow}
+        onSave={handleSave}
       />
     </Box>
   );
