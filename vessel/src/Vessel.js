@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, Input } from '@mui/material';
+import { Box, Button, Input, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import EditIcon from '@mui/icons-material/Edit';
 import VesselEditForm from './VesselEditForm'; // Import the VesselEditForm component
 
 const columns = [
@@ -105,11 +106,22 @@ export default function Vessel() {
 
   return (
     <Box sx={{ height: 600, width: '100%' }}>
+      {/* Go Back Button */}
       <Button variant="contained" color="primary" onClick={handleGoBack}>
         Go Back
       </Button>
 
-      <h1>Vessel Details</h1>
+      {/* Header with Vessel Details and Edit Icon */}
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+        <h1>Vessel Details</h1>
+
+        {/* Edit Icon positioned to the right of the Vessel Details header */}
+        <IconButton onClick={() => handleEditClick(selectedRow)}>
+          <EditIcon />
+        </IconButton>
+      </Box>
+
+      {/* Search Bar */}
       <Input
         placeholder="Search by any field..."
         value={searchTerm}
@@ -117,29 +129,21 @@ export default function Vessel() {
         style={{ margin: '10px 0', width: '100%' }}
       />
 
+      {/* DataGrid Table */}
       <DataGrid
         rows={filteredVessels}
-        columns={[
-          ...columns,
-          {
-            field: 'edit',
-            headerName: 'Edit',
-            width: 100,
-            renderCell: (params) => (
-              <Button
-                variant="outlined"
-                onClick={() => handleEditClick(params.row)}
-              >
-                Edit
-              </Button>
-            ),
-          },
-        ]}
+        columns={columns}
         pageSize={10}
         rowsPerPageOptions={[10, 20, 50]}
         disableSelectionOnClick
+        sx={{
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: '#f4f4f4',
+          },
+        }}
       />
 
+      {/* Vessel Edit Form */}
       <VesselEditForm
         open={openDialog}
         onClose={() => setOpenDialog(false)}
