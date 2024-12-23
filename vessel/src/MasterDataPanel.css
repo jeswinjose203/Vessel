@@ -1,0 +1,38 @@
+.master-data-panel {
+    position: fixed;
+    top: 0;
+    right: -50%; /* Initially hidden */
+    height: 100%;
+    width: 50%;
+    background-color: #f9f9f9;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease; /* Smooth sliding animation */
+    z-index: 1000; /* Ensure it's above other elements */
+  }
+  
+  .master-data-panel.open {
+    right: 0; /* Slide in from the right */
+  }
+  
+  .panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background-color: #000000;
+    color: white;
+  }
+  
+  .close-btn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  .panel-content {
+    padding: 16px;
+    overflow-y: auto;
+  }
+  
