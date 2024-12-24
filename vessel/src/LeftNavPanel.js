@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShip, faDatabase, faWrench, faBars } from '@fortawesome/free-solid-svg-icons';
-import MasterDataPanel from './MasterDataPanel.js'; // Import the new sliding component
+import MasterDataPanel from './MasterDataPanel'; // Import the new sliding component
 import './LeftNavPanel.css';
 import shipLogo from './ship_logo.jpg';
 
