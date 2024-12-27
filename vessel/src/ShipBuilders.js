@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import './VesselType.css'; // External CSS file for styling
+import './Shipyards.css'; // CSS for styling
 
-const VesselType = () => {
+const ShipBuilders = () => {
   const [vesselData, setVesselData] = useState([]);
-  const [vesselTypes, setVesselTypes] = useState([]);
-  const [selectedType, setSelectedType] = useState(null);
+  const [shipyards, setShipyards] = useState([]);
+  const [selectedShipyard, setSelectedShipyard] = useState(null);
   const [filteredVessels, setFilteredVessels] = useState([]);
 
   useEffect(() => {
+    // Fetch vessel data from the JSON file
     fetch('/static/vesselData.json')
       .then((response) => {
         if (!response.ok) throw new Error('Failed to fetch vessel data');
@@ -15,45 +16,43 @@ const VesselType = () => {
       })
       .then((data) => {
         setVesselData(data);
-        const types = [...new Set(data.map((vessel) => vessel.vessel_type))];
-        setVesselTypes(types);
+        const uniqueShipyards = [...new Set(data.map((vessel) => vessel.Shipyard))];
+        setShipyards(uniqueShipyards);
       })
       .catch((error) => console.error('Error fetching vessel data:', error));
   }, []);
 
-  const handleTypeClick = (type) => {
-    setSelectedType(type);
-    const filtered = vesselData.filter((vessel) => vessel.vessel_type === type);
+  const handleShipyardClick = (shipyard) => {
+    setSelectedShipyard(shipyard);
+    const filtered = vesselData.filter((vessel) => vessel.Shipyard === shipyard);
     setFilteredVessels(filtered);
   };
 
   return (
-    <div className="vessel-container">
-      <h1 className="header">Vessel Types</h1>
-      <div className="vessel-content">
+    <div className="shipyard-container">
+      <h1 className="header">Shipyards</h1>
+      <div className="shipyard-content">
         {/* Sidebar */}
-        <div className="vessel-sidebar">
-          <h3>Vessel Types</h3>
-          <ul className="vessel-type-list">
-            {vesselTypes.map((type, index) => (
+        <div className="shipyard-sidebar">
+          <h3>Available Shipyards</h3>
+          <ul className="shipyard-list">
+            {shipyards.map((shipyard, index) => (
               <li
                 key={index}
-                className={`vessel-type-item ${
-                  type === selectedType ? 'active' : ''
-                }`}
-                onClick={() => handleTypeClick(type)}
+                className={`shipyard-item ${shipyard === selectedShipyard ? 'active' : ''}`}
+                onClick={() => handleShipyardClick(shipyard)}
               >
-                {type}
+                {shipyard}
               </li>
             ))}
           </ul>
         </div>
 
         {/* Vessel Details Section */}
-        <div className="vessel-details">
-          {selectedType ? (
+        <div className="shipyard-details">
+          {selectedShipyard ? (
             <div>
-              <h2>{selectedType} Vessels</h2>
+              <h2>Vessels Built at {selectedShipyard}</h2>
               <div className="vessel-card-container">
                 {filteredVessels.map((vessel) => (
                   <div key={vessel.id} className="vessel-card">
@@ -62,13 +61,13 @@ const VesselType = () => {
                       <strong>IMO Number:</strong> {vessel.imo_number}
                     </p>
                     <p>
-                      <strong>Flag:</strong> {vessel.flag}
+                      <strong>Vessel Type:</strong> {vessel.vessel_type}
+                    </p>
+                    <p>
+                      <strong>Build Year:</strong> {vessel.BuildYear}
                     </p>
                     <p>
                       <strong>Port of Registry:</strong> {vessel.port_of_registry}
-                    </p>
-                    <p>
-                      <strong>Owner:</strong> {vessel.registered_owner_name}
                     </p>
                     <p>
                       <strong>Status:</strong> {vessel.status}
@@ -79,7 +78,7 @@ const VesselType = () => {
             </div>
           ) : (
             <p className="placeholder-text">
-              Select a vessel type from the sidebar to view its details.
+              Select a shipyard from the sidebar to view vessels built there.
             </p>
           )}
         </div>
@@ -88,4 +87,4 @@ const VesselType = () => {
   );
 };
 
-export default VesselType;
+export default ShipBuilders;
