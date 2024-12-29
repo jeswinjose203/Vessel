@@ -1,0 +1,47 @@
+[
+    {
+      "id": "F001",
+      "fleet_id": "F001",
+      "fleet_name": "Oceanic Fleet",
+      "fleet_type": "Commercial",
+      "fleet_region": "Asia-Pacific",
+      "fleet_owner": "Oceanic Shipping Ltd.",
+      "fleet_size": 10,
+      "fleet_status": "Active",
+      "fleet_code": "OF001"
+    },
+    {
+      "id": "F002",
+      "fleet_id": "F002",
+      "fleet_name": "Blue Horizon Fleet",
+      "fleet_type": "Passenger",
+      "fleet_region": "Europe",
+      "fleet_owner": "Blue Horizon Cruises",
+      "fleet_size": 5,
+      "fleet_status": "Inactive",
+      "fleet_code": "BHF002"
+    },
+    {
+      "id": "F003",
+      "fleet_id": "F003",
+      "fleet_name": "Cargo Express Fleet",
+      "fleet_type": "Cargo",
+      "fleet_region": "North America",
+      "fleet_owner": "Cargo Express Ltd.",
+      "fleet_size": 20,
+      "fleet_status": "Active",
+      "fleet_code": "CEF003"
+    },
+    {
+      "id": "F004",
+      "fleet_id": "F004",
+      "fleet_name": "Speedy Fleet",
+      "fleet_type": "Commercial",
+      "fleet_region": "Africa",
+      "fleet_owner": "Speedy Transport Ltd.",
+      "fleet_size": 8,
+      "fleet_status": "Active",
+      "fleet_code": "SF004"
+    }
+  ]
+  
