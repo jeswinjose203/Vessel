@@ -1,14 +1,14 @@
 [
     {
       "id": "F001",
-      "fleet_id": "F001",
+      "fleet_id": "108",
       "fleet_name": "Oceanic Fleet",
       "fleet_type": "Commercial",
       "fleet_region": "Asia-Pacific",
       "fleet_owner": "Oceanic Shipping Ltd.",
       "fleet_size": 10,
       "fleet_status": "Active",
-      "fleet_code": "OF001"
+      "fleet_code": "108"
     },
     {
       "id": "F002",
