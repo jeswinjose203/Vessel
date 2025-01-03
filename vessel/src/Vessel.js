@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import { Box, Button, Input, IconButton } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react'; // Add useState and useEffect
+import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid
+import { Box, Button, Input, Menu, MenuItem, Checkbox } from '@mui/material'; // Import Material-UI components
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import VesselEditForm from './VesselEditForm'; // Import VesselEditForm component
+import { IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import VesselEditForm from './VesselEditForm'; // Import the VesselEditForm component
 
-const columns = [
+const allColumns = [
   { field: 'vessel_id', headerName: 'Vessel ID', width: 120 },
   { field: 'vessel_name', headerName: 'Vessel Name', width: 180 },
   { field: 'imo_number', headerName: 'IMO Number', width: 180 },
@@ -64,7 +65,22 @@ export default function Vessel() {
   const [searchTerm, setSearchTerm] = useState('');
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
+
+  const defaultVisibleColumns = [
+    { field: 'vessel_name', headerName: 'Vessel Name', width: 180 },
+    { field: 'vessel_type', headerName: 'Vessel Type', width: 150 },
+    { field: 'vessel_subtype', headerName: 'Vessel Subtype', width: 150 },
+    { field: 'flag', headerName: 'Flag', width: 100 },
+    { field: 'port_of_registry', headerName: 'Port of Registry', width: 180 },
+    { field: 'registered_owner_name', headerName: 'Registered Owner', width: 180 },
+    { field: 'status', headerName: 'Status', width: 120 },
+    { field: 'remarks', headerName: 'Remarks', width: 200 },
+    { field: 'BuildYear', headerName: 'Build Year', width: 100 },
+  ];
+
+  const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
 
   useEffect(() => {
     // Fetch data from the JSON file
@@ -78,25 +94,18 @@ export default function Vessel() {
     navigate(-1);
   };
 
-  const handleEditClick = (row) => {
-    setSelectedRow(row);
-    setOpenDialog(true); // Open the form dialog when editing a row
-  };
-
   const handleSave = (updatedVessel) => {
     setRows((prevRows) => {
       const index = prevRows.findIndex((vessel) => vessel.id === updatedVessel.id);
       if (index !== -1) {
-        // Update existing vessel
         const updatedRows = [...prevRows];
         updatedRows[index] = updatedVessel;
         return updatedRows;
       } else {
-        // Add new vessel
         return [...prevRows, updatedVessel];
       }
     });
-    setOpenDialog(false); // Close the dialog after saving
+    setOpenDialog(false);
   };
 
   const filteredVessels = rows.filter((vessel) =>
@@ -105,24 +114,54 @@ export default function Vessel() {
     )
   );
 
+  const handleFilterMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterMenuClose = () => {
+    setAnchorEl(null);
+  };
+  const handleEditClick = (row) => {
+    setSelectedRow(row);
+    setOpenDialog(true); // Open the form dialog when editing a row
+  };
+  const handleColumnToggle = (column) => {
+    setVisibleColumns((prev) =>
+      prev.includes(column)
+        ? prev.filter((col) => col.field !== column.field)
+        : [...prev, column]
+    );
+  };
+
   return (
     <Box sx={{ height: 600, width: '100%' }}>
-      {/* Go Back Button */}
       <Button variant="contained" color="primary" onClick={handleGoBack}>
         Go Back
       </Button>
 
-      {/* Header with Vessel Details and Edit Icon */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
         <h1>Vessel Details</h1>
-
-        {/* Edit Icon positioned to the right of the Vessel Details header */}
-        <IconButton onClick={() => handleEditClick(selectedRow)}>
-          <EditIcon />
-        </IconButton>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+    <IconButton onClick={() => handleEditClick(selectedRow)}>
+      <EditIcon />
+    </IconButton>
+    <Button variant="outlined" onClick={handleFilterMenuClick}>
+      Filter Columns
+    </Button>
+  </Box>
+        <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleFilterMenuClose}>
+          {allColumns.map((column) => (
+            <MenuItem key={column.field}>
+              <Checkbox
+                checked={visibleColumns.includes(column)}
+                onChange={() => handleColumnToggle(column)}
+              />
+              {column.headerName}
+            </MenuItem>
+          ))}
+        </Menu>
       </Box>
 
-      {/* Search Bar */}
       <Input
         placeholder="Search by any field..."
         value={searchTerm}
@@ -130,10 +169,9 @@ export default function Vessel() {
         style={{ margin: '10px 0', width: '100%' }}
       />
 
-      {/* DataGrid Table */}
       <DataGrid
         rows={filteredVessels}
-        columns={columns}
+        columns={visibleColumns}
         pageSize={10}
         rowsPerPageOptions={[10, 20, 50]}
         disableSelectionOnClick
@@ -144,7 +182,6 @@ export default function Vessel() {
         }}
       />
 
-      {/* Vessel Edit Form */}
       <VesselEditForm
         open={openDialog}
         onClose={() => setOpenDialog(false)}
@@ -154,4 +191,3 @@ export default function Vessel() {
     </Box>
   );
 }
-  
