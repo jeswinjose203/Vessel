@@ -5,6 +5,8 @@ const VesselSubtypes = () => {
   const [vesselData, setVesselData] = useState([]);
   const [vesselTypes, setVesselTypes] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
+  const [vesselSubtypes, setVesselSubtypes] = useState([]);
+  const [selectedSubtype, setSelectedSubtype] = useState(null);
   const [filteredVessels, setFilteredVessels] = useState([]);
   const [editVessel, setEditVessel] = useState(null);
 
@@ -27,25 +29,48 @@ const VesselSubtypes = () => {
 
   useEffect(() => {
     if (selectedType) {
+      const subtypes = [
+        ...new Set(
+          vesselData
+            .filter((vessel) => vessel.vessel_type === selectedType)
+            .map((vessel) => vessel.vessel_subtype)
+        ),
+      ];
+      setVesselSubtypes(subtypes);
+      setSelectedSubtype(null); // Reset subtype when type changes
+      setFilteredVessels([]); // Clear filtered vessels
+    }
+  }, [selectedType, vesselData]);
+
+  useEffect(() => {
+    if (selectedSubtype) {
       const filtered = vesselData.filter(
-        (vessel) => vessel.vessel_type === selectedType
+        (vessel) =>
+          vessel.vessel_type === selectedType &&
+          vessel.vessel_subtype === selectedSubtype
       );
       setFilteredVessels(filtered);
     }
-  }, [selectedType, vesselData]);
+  }, [selectedSubtype, selectedType, vesselData]);
 
   const handleEditClick = (vessel) => {
     setEditVessel(vessel);
   };
 
   const handleEditChange = (field, value) => {
-    setEditVessel({ ...editVessel, master_data: { ...editVessel.master_data, [field]: value } });
+    setEditVessel({
+      ...editVessel,
+      master_data: { ...editVessel.master_data, [field]: value },
+    });
   };
 
   const saveVesselChanges = () => {
     setVesselData((prevData) =>
       prevData.map((vessel) =>
-        vessel.vessel_type === editVessel.vessel_type ? editVessel : vessel
+        vessel.vessel_type === editVessel.vessel_type &&
+        vessel.vessel_subtype === editVessel.vessel_subtype
+          ? editVessel
+          : vessel
       )
     );
     setEditVessel(null);
@@ -68,16 +93,35 @@ const VesselSubtypes = () => {
               </option>
             ))}
           </select>
+
+          {selectedType && (
+            <>
+              <h3>Vessel Subtypes</h3>
+              <select
+                value={selectedSubtype || ''}
+                onChange={(e) => setSelectedSubtype(e.target.value)}
+              >
+                <option value="">Select a Subtype</option>
+                {vesselSubtypes.map((subtype, index) => (
+                  <option key={index} value={subtype}>
+                    {subtype}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
         </div>
 
         <div className="vessel-details">
-          {selectedType ? (
+          {selectedSubtype ? (
             <div>
-              <h2>{selectedType} Vessels</h2>
+              <h2>
+                {selectedSubtype} Vessels ({selectedType})
+              </h2>
               <div className="vessel-card-container">
                 {filteredVessels.map((vessel) => (
-                  <div key={vessel.vessel_type} className="vessel-card">
-                    {editVessel?.vessel_type === vessel.vessel_type ? (
+                  <div key={vessel.vessel_subtype} className="vessel-card">
+                    {editVessel?.vessel_subtype === vessel.vessel_subtype ? (
                       <div>
                         <div className="field">
                           <label>Onboarded Date:</label>
@@ -143,9 +187,16 @@ const VesselSubtypes = () => {
                     ) : (
                       <div>
                         <h3>{vessel.vessel_type}</h3>
+                        <p>Subtype: {vessel.vessel_subtype}</p>
                         <p>Status: {vessel.master_data.status}</p>
-                        <p>Last Inspection Date: {vessel.master_data.last_inspection_date}</p>
-                        <p>Next Inspection Due: {vessel.master_data.next_inspection_due}</p>
+                        <p>
+                          Last Inspection Date:{' '}
+                          {vessel.master_data.last_inspection_date}
+                        </p>
+                        <p>
+                          Next Inspection Due:{' '}
+                          {vessel.master_data.next_inspection_due}
+                        </p>
                         <p>Remarks: {vessel.master_data.remarks}</p>
                         <button onClick={() => handleEditClick(vessel)}>
                           Edit
@@ -157,7 +208,7 @@ const VesselSubtypes = () => {
               </div>
             </div>
           ) : (
-            <p>Select a vessel type to view details.</p>
+            <p>Select a subtype to view vessels.</p>
           )}
         </div>
       </div>

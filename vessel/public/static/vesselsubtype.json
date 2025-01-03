@@ -1,25 +1,62 @@
 [
-    {
-      "vessel_type": "Cargo",
-      "master_data": {
-        "onboarded_date": "2025-01-01",
-        "leaving_date": "2025-02-01",
-        "status": "Active",
-        "last_inspection_date": "2024-12-15",
-        "next_inspection_due": "2025-06-15",
-        "remarks": "In good condition"
-      }
-    },
-    {
-      "vessel_type": "Tanker",
-      "master_data": {
-        "onboarded_date": "2025-01-10",
-        "leaving_date": "2025-03-01",
-        "status": "Inactive",
-        "last_inspection_date": "2024-11-20",
-        "next_inspection_due": "2025-05-20",
-        "remarks": "Minor repairs needed"
-      }
+  {
+    "vessel_type": "Cargo",
+    "vessel_subtype": "Bulk Carrier",
+    "master_data": {
+      "onboarded_date": "2023-01-10",
+      "leaving_date": "2025-03-15",
+      "status": "Operational",
+      "last_inspection_date": "2024-11-20",
+      "next_inspection_due": "2025-05-20",
+      "remarks": "All systems operational"
     }
-  ]
-  
+  },
+  {
+    "vessel_type": "Cargo",
+    "vessel_subtype": "Container Ship",
+    "master_data": {
+      "onboarded_date": "2023-05-22",
+      "leaving_date": "2025-06-30",
+      "status": "Under Maintenance",
+      "last_inspection_date": "2024-10-10",
+      "next_inspection_due": "2025-04-10",
+      "remarks": "Engine repairs in progress"
+    }
+  },
+  {
+    "vessel_type": "Passenger",
+    "vessel_subtype": "Cruise Ship",
+    "master_data": {
+      "onboarded_date": "2022-07-01",
+      "leaving_date": "2026-12-31",
+      "status": "Operational",
+      "last_inspection_date": "2024-12-01",
+      "next_inspection_due": "2025-06-01",
+      "remarks": "Excellent condition"
+    }
+  },
+  {
+    "vessel_type": "Passenger",
+    "vessel_subtype": "Ferry",
+    "master_data": {
+      "onboarded_date": "2021-11-15",
+      "leaving_date": "2024-12-15",
+      "status": "Decommissioned",
+      "last_inspection_date": "2023-10-10",
+      "next_inspection_due": "N/A",
+      "remarks": "Retired from service"
+    }
+  },
+  {
+    "vessel_type": "Fishing",
+    "vessel_subtype": "Trawler",
+    "master_data": {
+      "onboarded_date": "2020-06-01",
+      "leaving_date": "2024-08-15",
+      "status": "Operational",
+      "last_inspection_date": "2024-06-01",
+      "next_inspection_due": "2025-01-01",
+      "remarks": "Minor wear on hull"
+    }
+  }
+]
