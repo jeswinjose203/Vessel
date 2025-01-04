@@ -1,0 +1,83 @@
+[
+    {
+      "id": 1,
+      "vessel_name": "Ocean Explorer",
+      "imo_number": "1234567",
+      "vessel_type": "Cargo",
+      "vessel_subtype": "Bulk Carrier",
+      "port_of_registry": "Panama City",
+      "status": "Active",
+      "flag": "Panama"
+    },
+    {
+      "id": 2,
+      "vessel_name": "Sea Voyager",
+      "imo_number": "2345678",
+      "vessel_type": "Tanker",
+      "vessel_subtype": "Oil Tanker",
+      "port_of_registry": "Tokyo",
+      "status": "Inactive",
+      "flag": "Japan"
+    },
+    {
+      "id": 3,
+      "vessel_name": "Harbor Star",
+      "imo_number": "3456789",
+      "vessel_type": "Passenger",
+      "vessel_subtype": "Cruise Ship",
+      "port_of_registry": "Miami",
+      "status": "Active",
+      "flag": "USA"
+    },
+    {
+      "id": 4,
+      "vessel_name": "Arctic Pioneer",
+      "imo_number": "4567890",
+      "vessel_type": "Research",
+      "vessel_subtype": "Icebreaker",
+      "port_of_registry": "Oslo",
+      "status": "Active",
+      "flag": "Norway"
+    },
+    {
+      "id": 5,
+      "vessel_name": "Marine Defender",
+      "imo_number": "5678901",
+      "vessel_type": "Defense",
+      "vessel_subtype": "Patrol Boat",
+      "port_of_registry": "Sydney",
+      "status": "Decommissioned",
+      "flag": "Australia"
+    },
+    {
+      "id": 6,
+      "vessel_name": "Blue Horizon",
+      "imo_number": "6789012",
+      "vessel_type": "Fishing",
+      "vessel_subtype": "Trawler",
+      "port_of_registry": "Cape Town",
+      "status": "Active",
+      "flag": "South Africa"
+    },
+    {
+      "id": 7,
+      "vessel_name": "Pacific Pearl",
+      "imo_number": "7890123",
+      "vessel_type": "Passenger",
+      "vessel_subtype": "Luxury Yacht",
+      "port_of_registry": "Honolulu",
+      "status": "Under Maintenance",
+      "flag": "Hawaii"
+    },
+    {
+      "id": 8,
+      "vessel_name": "Atlantic Pride",
+      "imo_number": "8901234",
+      "vessel_type": "Cargo",
+      "vessel_subtype": "Container Ship",
+      "port_of_registry": "Rotterdam",
+      "status": "Active",
+      "flag": "Netherlands"
+    }
+  ]
+  

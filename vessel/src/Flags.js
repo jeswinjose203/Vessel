@@ -6,8 +6,8 @@ const Flags = () => {
   const [flags, setFlags] = useState([]);
   const [selectedFlag, setSelectedFlag] = useState(null);
   const [filteredVessels, setFilteredVessels] = useState([]);
-  const [editVessel, setEditVessel] = useState(null); // State for editing a vessel
-  const [newFlag, setNewFlag] = useState(''); // State for adding a new flag
+  const [editVessel, setEditVessel] = useState(null);
+  const [newFlag, setNewFlag] = useState('');
 
   useEffect(() => {
     // Fetch vessel data from the JSON file
@@ -39,7 +39,6 @@ const Flags = () => {
   };
 
   const saveVesselChanges = () => {
-    // Update the flag if it was changed
     const updatedFlag = editVessel.flag;
 
     setVesselData((prevData) => {
@@ -47,7 +46,6 @@ const Flags = () => {
         vessel.id === editVessel.id ? editVessel : vessel
       );
 
-      // Add the new flag to the list of flags if it doesn't already exist
       if (!flags.includes(updatedFlag)) {
         setFlags([...flags, updatedFlag]);
       }
@@ -55,7 +53,6 @@ const Flags = () => {
       return updatedData;
     });
 
-    // Re-filter vessels for the selected flag
     if (selectedFlag === updatedFlag) {
       setFilteredVessels((prevData) =>
         prevData.map((vessel) =>
@@ -63,7 +60,7 @@ const Flags = () => {
         )
       );
     } else {
-      handleFlagClick(selectedFlag); // Refresh the filtered list
+      handleFlagClick(selectedFlag);
     }
 
     setEditVessel(null); // Exit edit mode
@@ -105,7 +102,7 @@ const Flags = () => {
           </div>
         </div>
 
-        {/* Vessel Details Section */}
+        {/* Flag Details Section */}
         <div className="flag-details">
           {selectedFlag ? (
             <div>
@@ -115,7 +112,6 @@ const Flags = () => {
                   <div key={vessel.id} className="vessel-card">
                     {editVessel?.id === vessel.id ? (
                       <div>
-                        {/* Editable Fields */}
                         <input
                           type="text"
                           value={editVessel.vessel_name}
@@ -158,7 +154,6 @@ const Flags = () => {
                             handleEditChange('status', e.target.value)
                           }
                         />
-                        {/* Editable Dropdown for Flags */}
                         <select
                           value={editVessel.flag}
                           onChange={(e) =>
@@ -170,7 +165,6 @@ const Flags = () => {
                               {flag}
                             </option>
                           ))}
-                          <option value="">Other</option>
                         </select>
                         <button onClick={saveVesselChanges}>Save</button>
                       </div>
@@ -184,7 +178,8 @@ const Flags = () => {
                           <strong>Vessel Type:</strong> {vessel.vessel_type}
                         </p>
                         <p>
-                          <strong>Vessel Subtype:</strong> {vessel.vessel_subtype}
+                          <strong>Vessel Subtype:</strong>{' '}
+                          {vessel.vessel_subtype}
                         </p>
                         <p>
                           <strong>Port of Registry:</strong>{' '}
@@ -206,9 +201,7 @@ const Flags = () => {
               </div>
             </div>
           ) : (
-            <p className="placeholder-text">
-              Select a flag from the sidebar to view its vessels.
-            </p>
+            <p>Select a flag from the sidebar to view vessels.</p>
           )}
         </div>
       </div>
