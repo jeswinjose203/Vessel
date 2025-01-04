@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react'; // Add useState and useEffect
-import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid
-import { Box, Button, Input, Menu, MenuItem, Checkbox } from '@mui/material'; // Import Material-UI components
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-import VesselEditForm from './VesselEditForm'; // Import VesselEditForm component
-import { IconButton } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { DataGrid } from '@mui/x-data-grid';
+import { Box, Button, Input, Menu, MenuItem, Checkbox, IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import VesselEditForm from './VesselEditForm';
 import EditIcon from '@mui/icons-material/Edit';
 
 const allColumns = [
@@ -60,6 +59,7 @@ const allColumns = [
   { field: 'operationalManagerName', headerName: 'Operational Manager', width: 200 },
 ];
 
+
 export default function Vessel() {
   const [rows, setRows] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
@@ -81,6 +81,7 @@ export default function Vessel() {
   ];
 
   const [visibleColumns, setVisibleColumns] = useState(defaultVisibleColumns);
+
 
   useEffect(() => {
     // Fetch data from the backend API
@@ -151,6 +152,7 @@ export default function Vessel() {
   const handleGoBack = () => {
     navigate(-1);
   };
+
   const handleSave = (updatedVessel) => {
     setRows((prevRows) => {
       const index = prevRows.findIndex((vessel) => vessel.id === updatedVessel.id);
@@ -158,16 +160,17 @@ export default function Vessel() {
         const updatedRows = [...prevRows];
         updatedRows[index] = updatedVessel;
         return updatedRows;
-      } else {
-        return [...prevRows, updatedVessel];
       }
+      return [...prevRows, updatedVessel];
     });
     setOpenDialog(false);
   };
 
   const handleSearch = () => {
     const filteredRows = rows.filter((row) =>
-      row.vesselName.toLowerCase().includes(searchTerm.toLowerCase())
+      Object.values(row).some((value) =>
+        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+      )
     );
     setRows(filteredRows);
   };
@@ -183,7 +186,6 @@ export default function Vessel() {
 
   const handleRowClick = (params) => {
     setSelectedRow(params.row);
-    setOpenDialog(true);
   };
 
   const handleDialogClose = () => {
@@ -191,21 +193,28 @@ export default function Vessel() {
     setSelectedRow(null);
   };
 
+  const handleEditClick = (row) => {
+    if (!row) {
+      console.error("No row selected!");
+      return;
+    }
+    setSelectedRow(row);
+    setOpenDialog(true);
+  };
+
+  const handleFilterMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleFilterMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const filteredVessels = rows.filter((vessel) =>
     Object.values(vessel).some((value) =>
       String(value).toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
-  const handleFilterMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleFilterMenuClose = () => {
-    setAnchorEl(null);
-  };
-  const handleEditClick = () => {
-    // Navigate to the Vessel Edit page with the selected row details
-    navigate('/edit-vessel', { state: { vesselId: selectedRow.vesselId } });
-  };
 
   return (
     <Box sx={{ height: 600, width: '100%' }}>
@@ -216,18 +225,21 @@ export default function Vessel() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
         <h1>Vessel Details</h1>
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-    <IconButton onClick={() => handleEditClick(selectedRow)}>
-      <EditIcon />
-    </IconButton>
-    <Button variant="outlined" onClick={handleFilterMenuClick}>
-      Filter Columns
-    </Button>
-  </Box>
+          <IconButton
+            onClick={() => handleEditClick(selectedRow)}
+            disabled={!selectedRow} // Disable if no row is selected
+          >
+            <EditIcon />
+          </IconButton>
+          <Button variant="outlined" onClick={handleFilterMenuClick}>
+            Filter Columns
+          </Button>
+        </Box>
         <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleFilterMenuClose}>
           {allColumns.map((column) => (
             <MenuItem key={column.field}>
               <Checkbox
-                checked={visibleColumns.includes(column)}
+                checked={visibleColumns.some((col) => col.field === column.field)}
                 onChange={() => handleColumnToggle(column)}
               />
               {column.headerName}
@@ -235,27 +247,34 @@ export default function Vessel() {
           ))}
         </Menu>
       </Box>
+
       <Input
-        type="text"
+        placeholder="Search by any field..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search by vessel name"
+        style={{ margin: '10px 0', width: '100%' }}
       />
-      <Button onClick={handleSearch}>Search</Button>
-      <div style={{ height: 400, width: '100%' }}>
-        <DataGrid
-          rows={rows}
-          columns={visibleColumns}
-          pageSize={5}
-          onRowClick={handleRowClick}
-          rowsPerPageOptions={[5]}
-        />
-      </div>
-      {openDialog && (
+
+      <DataGrid
+        rows={filteredVessels}
+        columns={visibleColumns}
+        pageSize={10}
+        rowsPerPageOptions={[10, 20, 50]}
+        disableSelectionOnClick
+        onRowClick={handleRowClick}
+        sx={{
+          '& .MuiDataGrid-columnHeaders': {
+            backgroundColor: '#f4f4f4',
+          },
+        }}
+      />
+
+      {selectedRow && (
         <VesselEditForm
-          vesselData={selectedRow}
+          open={openDialog}
           onClose={handleDialogClose}
-          onEditClick={handleEditClick}
+          vessel={selectedRow}
+          onSave={handleSave}
         />
       )}
     </Box>
