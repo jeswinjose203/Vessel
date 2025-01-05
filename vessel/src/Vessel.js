@@ -153,19 +153,37 @@ export default function Vessel() {
     navigate(-1);
   };
 
+  // const handleSave = (updatedVessel) => {
+  //   setRows((prevRows) => {
+  //     const index = prevRows.findIndex((vessel) => vessel.id === updatedVessel.id);
+  //     if (index !== -1) {
+  //       const updatedRows = [...prevRows];
+  //       updatedRows[index] = updatedVessel;
+  //       return updatedRows;
+  //     }
+  //     return [...prevRows, updatedVessel];
+  //   });
+  //   setOpenDialog(false);
+  // };
   const handleSave = (updatedVessel) => {
-    setRows((prevRows) => {
-      const index = prevRows.findIndex((vessel) => vessel.id === updatedVessel.id);
-      if (index !== -1) {
-        const updatedRows = [...prevRows];
-        updatedRows[index] = updatedVessel;
-        return updatedRows;
-      }
-      return [...prevRows, updatedVessel];
-    });
+    if (updatedVessel.id) {
+      // Update the existing vessel
+      setRows((prevRows) => {
+        const index = prevRows.findIndex((vessel) => vessel.id === updatedVessel.id);
+        if (index !== -1) {
+          const updatedRows = [...prevRows];
+          updatedRows[index] = updatedVessel;
+          return updatedRows;
+        }
+        return prevRows;
+      });
+    } else {
+      // Add a new vessel
+      const newVessel = { ...updatedVessel, id: rows.length }; // Assign a new id based on current row count
+      setRows((prevRows) => [...prevRows, newVessel]);
+    }
     setOpenDialog(false);
   };
-
   const handleSearch = () => {
     const filteredRows = rows.filter((row) =>
       Object.values(row).some((value) =>
@@ -193,15 +211,33 @@ export default function Vessel() {
     setSelectedRow(null);
   };
 
+  // const handleEditClick = (row) => {
+  //   if (!row) {
+  //     console.error("No row selected!");
+  //   }
+  //   setSelectedRow(row);
+  //   setOpenDialog(true);
+  // };
   const handleEditClick = (row) => {
-    if (!row) {
-      console.error("No row selected!");
-      return;
+    if (row) {
+      // If a row is selected, pass it to the form for editing
+      setSelectedRow(row);
+    } else {
+      // If no row is selected, pass an empty object for creating a new vessel
+      setSelectedRow({
+        id: null, // Indicate that this is a new vessel
+        vesselName: '',
+        vesselType: '',
+        vesselSubtype: '',
+        flag: '',
+        portOfRegistry: '',
+        registeredOwnerName: '',
+        // Add any other default fields here
+      });
     }
-    setSelectedRow(row);
     setOpenDialog(true);
   };
-
+  
   const handleFilterMenuClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -227,7 +263,6 @@ export default function Vessel() {
         <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
           <IconButton
             onClick={() => handleEditClick(selectedRow)}
-            disabled={!selectedRow} // Disable if no row is selected
           >
             <EditIcon />
           </IconButton>

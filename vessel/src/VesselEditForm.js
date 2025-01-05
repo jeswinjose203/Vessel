@@ -58,27 +58,45 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
     return Object.keys(newErrors).length === 0;
   };
 
+  // const handleSave = () => {
+  //   if (!validateForm()) return;
+
+  //   const newVesselData = { ...formData };
+  //   const storedVesselData = JSON.parse(localStorage.getItem("vesselData")) || [];
+
+  //   if (vessel) {
+  //     const updatedVesselData = storedVesselData.map((v) =>
+  //       v.id === newVesselData.id ? newVesselData : v
+  //     );
+  //     localStorage.setItem("vesselData", JSON.stringify(updatedVesselData));
+  //   } else {
+  //     newVesselData.id = Date.now(); // Assign unique ID for new vessels
+  //     storedVesselData.push(newVesselData);
+  //     localStorage.setItem("vesselData", JSON.stringify(storedVesselData));
+  //   }
+
+  //   onSave(newVesselData);
+  //   onClose();
+  // };
   const handleSave = () => {
-    if (!validateForm()) return;
-
-    const newVesselData = { ...formData };
-    const storedVesselData = JSON.parse(localStorage.getItem("vesselData")) || [];
-
-    if (vessel) {
-      const updatedVesselData = storedVesselData.map((v) =>
-        v.id === newVesselData.id ? newVesselData : v
-      );
-      localStorage.setItem("vesselData", JSON.stringify(updatedVesselData));
+    if (!validateForm()) return;  // Ensure the form is valid
+  
+    const newVesselData = { ...formData };  // Clone form data (to prevent mutation)
+    
+    if (vessel && vessel.id) {
+      // If vessel exists, update the fields
+      const updatedVesselData = { ...vessel, ...newVesselData };
+      onSave(updatedVesselData);  // Send the updated data to the parent (or API)
     } else {
-      newVesselData.id = Date.now(); // Assign unique ID for new vessels
-      storedVesselData.push(newVesselData);
-      localStorage.setItem("vesselData", JSON.stringify(storedVesselData));
+      // If it's a new vessel, set an ID and send the new data
+      newVesselData.id = Date.now();  // Assign a unique ID for the new vessel
+      onSave(newVesselData);  // Send the new data to the parent (or API)
     }
-
-    onSave(newVesselData);
-    onClose();
+  
+    onClose();  // Close the form/dialog
   };
-
+  
+  
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>{vessel ? 'Edit Vessel' : 'Add Vessel'}</DialogTitle>
@@ -92,7 +110,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Vessel Name"
-              name="vessel_name"
+              name="vesselName"
               value={formData.vesselName || ''}
               onChange={handleChange}
               fullWidth
@@ -101,7 +119,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="IMO Number"
-              name="imo_number"
+              name="imoNumber"
               value={formData.imoNumber || ''}
               onChange={handleChange}
               fullWidth
@@ -110,7 +128,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Official Number"
-              name="official_number"
+              name="officialNumber"
               value={formData.officialNumber || ''}
               onChange={handleChange}
               fullWidth
@@ -119,7 +137,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Call Sign"
-              name="call_sign"
+              name="callSign"
               value={formData.callSign || ''}
               onChange={handleChange}
               fullWidth
@@ -129,7 +147,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <FormControl fullWidth>
               <InputLabel>Vessel Type</InputLabel>
               <Select
-                name="vessel_type"
+                name="vesselType"
                 value={formData.vesselType || ''}
                 onChange={handleChange}
               >
@@ -143,7 +161,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Vessel Subtype"
-              name="vessel_subtype"
+              name="vesselSubtype"
               value={formData.vesselSubtype || ''}
               onChange={handleChange}
               fullWidth
@@ -161,7 +179,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Port of Registry"
-              name="port_of_registry"
+              name="portOfRegistry"
               value={formData.portOfRegistry || ''}
               onChange={handleChange}
               fullWidth
@@ -170,7 +188,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Group Owner Name"
-              name="group_owner_name"
+              name="groupOwnerName"
               value={formData.groupOwnerName || ''}
               onChange={handleChange}
               fullWidth
@@ -187,7 +205,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Registered Owner Name"
-              name="registered_owner_name"
+              name="registeredOwnerName"
               value={formData.registeredOwnerName || ''}
               onChange={handleChange}
               fullWidth
@@ -196,7 +214,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Registered Owner Address"
-              name="registered_owner_address"
+              name="registeredOwnerAddress"
               value={formData.registeredOwnerAddress || ''}
               onChange={handleChange}
               fullWidth
@@ -205,7 +223,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Bareboat Charter Owner Name"
-              name="bareboat_charter_name"
+              name="bareboatCharterName"
               value={formData.bareboatCharterName || ''}
               onChange={handleChange}
               fullWidth
@@ -214,7 +232,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Bareboat Charter Owner Address"
-              name="bareboat_charter_address"
+              name="bareboatCharterAddress"
               value={formData.bareboatCharterAddress || ''}
               onChange={handleChange}
               fullWidth
@@ -223,7 +241,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="DOC/MLC Owner"
-              name="doc_mlc_owner_name"
+              name="docMlcOwnerName"
               value={formData.docMlcOwnerName || ''}
               onChange={handleChange}
               fullWidth
@@ -232,7 +250,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="DOC/MLC Holder Address"
-              name="doc_mlc_owner_address"
+              name="docMlcOwnerAddress"
               value={formData.docMlcOwnerAddress || ''}
               onChange={handleChange}
               fullWidth
@@ -241,7 +259,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Employers Agent"
-              name="employer_agent_name"
+              name="employerAgentName"
               value={formData.employerAgentName || ''}
               onChange={handleChange}
               fullWidth
@@ -250,7 +268,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
           <Grid item xs={6}>
             <TextField
               label="Employers Agent Address"
-              name="employer_agent_address"
+              name="employerAgentAddress"
               value={formData.employerAgentAddress || ''}
               onChange={handleChange}
               fullWidth
@@ -280,6 +298,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
               value={formData.handoverDate || ""}
               onChange={handleChange}
               fullWidth
+              InputLabelProps={{ shrink: true }}
             />
           </Grid>
           <Grid item xs={6}>
