@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Button,
   TextField,
@@ -15,10 +15,26 @@ import {
   FormControlLabel,
   Checkbox,
   Grid,
-} from '@mui/material';
+} from "@mui/material";
+
+// Reusable TextField Component
+const ReusableTextField = ({ label, name, value, onChange, type = "text", required = false }) => (
+  <TextField
+    label={label}
+    name={name}
+    value={value || ""}
+    onChange={onChange}
+    fullWidth
+    type={type}
+    required={required}
+    error={required && !value}
+    helperText={required && !value ? `${label} is required.` : ""}
+  />
+);
 
 export default function VesselEditForm({ open, onClose, vessel, onSave }) {
   const [formData, setFormData] = useState(vessel || {});
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     setFormData(vessel || {});
@@ -32,30 +48,34 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
     }));
   };
 
+  const validateForm = () => {
+    const newErrors = {};
+    const requiredFields = ["vessel_name", "imo_number", "vessel_type"];
+    requiredFields.forEach((field) => {
+      if (!formData[field]) newErrors[field] = true;
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSave = () => {
+    if (!validateForm()) return;
+
     const newVesselData = { ...formData };
+    const storedVesselData = JSON.parse(localStorage.getItem("vesselData")) || [];
 
-    // Get current vessels data from localStorage (if any)
-    const storedVesselData = JSON.parse(localStorage.getItem('vesselData')) || [];
-
-    // Check if it's an edit or a new entry
     if (vessel) {
-      // Update existing vessel
       const updatedVesselData = storedVesselData.map((v) =>
         v.id === newVesselData.id ? newVesselData : v
       );
-
-      // Save updated data back to localStorage
-      localStorage.setItem('vesselData', JSON.stringify(updatedVesselData));
+      localStorage.setItem("vesselData", JSON.stringify(updatedVesselData));
     } else {
-      // Add new vessel
+      newVesselData.id = Date.now(); // Assign unique ID for new vessels
       storedVesselData.push(newVesselData);
-
-      // Save new data back to localStorage
-      localStorage.setItem('vesselData', JSON.stringify(storedVesselData));
+      localStorage.setItem("vesselData", JSON.stringify(storedVesselData));
     }
 
-    onSave(newVesselData); // Pass new data to parent component
+    onSave(newVesselData);
     onClose();
   };
 
@@ -71,27 +91,9 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
         <Grid container spacing={2}>
           <Grid item xs={6}>
             <TextField
-              label="ID"
-              name="id"
-              value={formData.id || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Vessel ID"
-              name="vessel_id"
-              value={formData.vessel_id || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
               label="Vessel Name"
               name="vessel_name"
-              value={formData.vessel_name || ''}
+              value={formData.vesselName || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -100,7 +102,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="IMO Number"
               name="imo_number"
-              value={formData.imo_number || ''}
+              value={formData.imoNumber || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -109,7 +111,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Official Number"
               name="official_number"
-              value={formData.official_number || ''}
+              value={formData.officialNumber || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -118,7 +120,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Call Sign"
               name="call_sign"
-              value={formData.call_sign || ''}
+              value={formData.callSign || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -128,7 +130,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
               <InputLabel>Vessel Type</InputLabel>
               <Select
                 name="vessel_type"
-                value={formData.vessel_type || ''}
+                value={formData.vesselType || ''}
                 onChange={handleChange}
               >
                 <MenuItem value="Cargo">Cargo</MenuItem>
@@ -142,7 +144,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Vessel Subtype"
               name="vessel_subtype"
-              value={formData.vessel_subtype || ''}
+              value={formData.vesselSubtype || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -160,7 +162,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Port of Registry"
               name="port_of_registry"
-              value={formData.port_of_registry || ''}
+              value={formData.portOfRegistry || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -169,7 +171,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Group Owner Name"
               name="group_owner_name"
-              value={formData.group_owner_name || ''}
+              value={formData.groupOwnerName || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -186,7 +188,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Registered Owner Name"
               name="registered_owner_name"
-              value={formData.registered_owner_name || ''}
+              value={formData.registeredOwnerName || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -195,7 +197,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Registered Owner Address"
               name="registered_owner_address"
-              value={formData.registered_owner_address || ''}
+              value={formData.registeredOwnerAddress || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -204,7 +206,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Bareboat Charter Owner Name"
               name="bareboat_charter_name"
-              value={formData.bareboat_charter_name || ''}
+              value={formData.bareboatCharterName || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -213,7 +215,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Bareboat Charter Owner Address"
               name="bareboat_charter_address"
-              value={formData.bareboat_charter_address || ''}
+              value={formData.bareboatCharterAddress || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -222,7 +224,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="DOC/MLC Owner"
               name="doc_mlc_owner_name"
-              value={formData.doc_mlc_owner_name || ''}
+              value={formData.docMlcOwnerName || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -231,7 +233,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="DOC/MLC Holder Address"
               name="doc_mlc_owner_address"
-              value={formData.doc_mlc_owner_address || ''}
+              value={formData.docMlcOwnerAddress || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -240,7 +242,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Employers Agent"
               name="employer_agent_name"
-              value={formData.employer_agent_name || ''}
+              value={formData.employerAgentName || ''}
               onChange={handleChange}
               fullWidth
             />
@@ -249,175 +251,338 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             <TextField
               label="Employers Agent Address"
               name="employer_agent_address"
-              value={formData.employer_agent_address || ''}
+              value={formData.employerAgentAddress || ''}
               onChange={handleChange}
               fullWidth
             />
           </Grid>
         </Grid>
 
-        {/* CBA */}
-        <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>
-          CBA
-        </Typography>
         <Divider />
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formData.union === 'Yes'}
-                  onChange={(e) =>
-                    setFormData((prevData) => ({
-                      ...prevData,
-                      union: e.target.checked ? 'Yes' : 'No',
-                    }))
-                  }
-                />
-              }
-              label="Union (CBA displayed in the contract)"
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Temporary CBA"
-              name="temporary_cba"
-              value={formData.temporary_cba || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-        </Grid>
-
-        {/* Engine Details */}
-        <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>
-          Engine Details
-        </Typography>
-        <Divider />
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
-            <TextField
-              label="Main Engine Make and Model"
-              name="engine_make_model"
-              value={formData.engine_make_model || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Main Engine"
-              name="main_engine"
-              value={formData.main_engine || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={formData.dual_fuel === 'Yes'}
-                  onChange={(e) =>
-                    setFormData((prevData) => ({
-                      ...prevData,
-                      dual_fuel: e.target.checked ? 'Yes' : 'No',
-                    }))
-                  }
-                />
-              }
-              label="Dual Fuel"
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="Main Engine Max Cont Rating (KW)"
-              name="engine_max_rating"
-              value={formData.engine_max_rating || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="DWT"
-              name="dwt"
-              value={formData.dwt || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="GRT"
-              name="grt"
-              value={formData.grt || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <TextField
-              label="ECDIS Type"
-              name="ecdis_type"
-              value={formData.ecdis_type || ''}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
-        </Grid>
-
-        {/* Other Details */}
         <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>
           Other Details
         </Typography>
-        <Divider />
         <Grid container spacing={2}>
-          <Grid item xs={6}>
+        <Grid item xs={6}>
             <TextField
-              label="Advance Joiners Date"
-              name="advance_joiners_date"
-              value={formData.advance_joiners_date || ''}
+              label="Status"
+              name="status"
+              value={formData.status || ""}
               onChange={handleChange}
               fullWidth
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="New Vessel Code to be Assigned"
-              name="new_vessel_code"
-              value={formData.new_vessel_code || ''}
+              label="Handover Date"
+              name="handoverDate"
+              type="date"
+              value={formData.handoverDate || ""}
               onChange={handleChange}
               fullWidth
             />
           </Grid>
           <Grid item xs={6}>
             <TextField
-              label="Existing Code (If Existing Vessel)"
-              name="existing_code"
-              value={formData.existing_code || ''}
+              label="Build Year"
+              name="buildYear"
+              type="number"
+              value={formData.buildYear || ""}
               onChange={handleChange}
               fullWidth
             />
           </Grid>
           <Grid item xs={6}>
-            <FormControl fullWidth>
-              <InputLabel>Management</InputLabel>
-              <Select
-                name="management"
-                value={formData.management || ''}
-                onChange={handleChange}
-              >
-                <MenuItem value="Company A">Company A</MenuItem>
-                <MenuItem value="Company B">Company B</MenuItem>
-              </Select>
-            </FormControl>
+            <TextField
+              label="Shipyard"
+              name="shipyard"
+              value={formData.shipyard || ""}
+              onChange={handleChange}
+              fullWidth
+            />
           </Grid>
-        </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Gross Tonnage"
+              name="grossTonnage"
+              type="number"
+              value={formData.grossTonnage || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Net Tonnage"
+              name="netTonnage"
+              type="number"
+              value={formData.netTonnage || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Deadweight Tonnage (DWT)"
+              name="deadweightTonnage"
+              type="number"
+              value={formData.deadweightTonnage || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Length Overall"
+              name="lengthOverall"
+              type="number"
+              value={formData.lengthOverall || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Beam"
+              name="beam"
+              type="number"
+              value={formData.beam || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Draft"
+              name="draft"
+              type="number"
+              value={formData.draft || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Engine Type"
+              name="engineType"
+              value={formData.engineType || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Engine Power"
+              name="enginePower"
+              type="number"
+              value={formData.enginePower || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Speed"
+              name="speed"
+              type="number"
+              value={formData.speed || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Hull Material"
+              name="hullMaterial"
+              value={formData.hullMaterial || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Class Society"
+              name="classSociety"
+              value={formData.classSociety || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Last Survey Date"
+              name="lastSurveyDate"
+              type="date"
+              value={formData.lastSurveyDate || ""}
+              onChange={handleChange}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Next Survey Due Date"
+              name="nextSurveyDueDate"
+              type="date"
+              value={formData.nextSurveyDueDate || ""}
+              onChange={handleChange}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="AIS Code"
+              name="aisCode"
+              value={formData.aisCode || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Crew Capacity"
+              name="crewCapacity"
+              type="number"
+              value={formData.crewCapacity || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Passenger Capacity"
+              name="passengerCapacity"
+              type="number"
+              value={formData.passengerCapacity || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Cargo Capacity"
+              name="cargoCapacity"
+              type="number"
+              value={formData.cargoCapacity || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Fuel Capacity"
+              name="fuelCapacity"
+              type="number"
+              value={formData.fuelCapacity || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Operational Range"
+              name="operationalRange"
+              type="number"
+              value={formData.operationalRange || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Last Maintenance Date"
+              name="lastMaintenanceDate"
+              type="date"
+              value={formData.lastMaintenanceDate || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Next Maintenance Due Date"
+              name="nextMaintenanceDueDate"
+              type="date"
+              value={formData.nextMaintenanceDueDate || ""}
+              onChange={handleChange}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Insurance Policy Number"
+              name="insurancePolicyNumber"
+              value={formData.insurancePolicyNumber || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Insurance Expiry Date"
+              name="insuranceExpiryDate"
+              type="date"
+              value={formData.insuranceExpiryDate || ""}
+              onChange={handleChange}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Last Port Visited"
+              name="lastPortVisited"
+              value={formData.lastPortVisited || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="ETA Destination"
+              name="etaDestination"
+              type="date"
+              value={formData.etaDestination || ""}
+              onChange={handleChange}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Crew Onboard Count"
+              name="crewOnboardCount"
+              type="number"
+              value={formData.crewOnboardCount || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Technical Manager Name"
+              name="technicalManagerName"
+              value={formData.technicalManagerName || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <TextField
+              label="Operational Manager Name"
+              name="operationalManagerName"
+              value={formData.operationalManagerName || ""}
+              onChange={handleChange}
+              fullWidth
+            />
+          </Grid>
+          </Grid>
 
         {/* Attachments and Remarks */}
         <Typography variant="h6" gutterBottom style={{ marginTop: '20px' }}>
-          Attachments and Remarks
+        Remarks
         </Typography>
         <Divider />
         <TextField
