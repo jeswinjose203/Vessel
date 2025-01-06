@@ -1,0 +1,55 @@
+[
+    {
+      "id": 1,
+      "vessel_name": "Ocean Explorer",
+      "owner": "Oceanic Ventures Ltd.",
+      "operator": "SeaWorks Operations",
+      "classification_society": "Lloyd's Register",
+      "gross_tonnage": 50000,
+      "net_tonnage": 30000,
+      "year_built": 2010,
+      "home_port": "New York",
+      "port_of_registry": "New York",
+      "status": "Active"
+    },
+    {
+      "id": 2,
+      "vessel_name": "Atlantic Carrier",
+      "owner": "Atlantic Shipping Inc.",
+      "operator": "Global Maritime",
+      "classification_society": "American Bureau of Shipping",
+      "gross_tonnage": 40000,
+      "net_tonnage": 25000,
+      "year_built": 2015,
+      "home_port": "Los Angeles",
+      "port_of_registry": "Los Angeles",
+      "status": "Under Maintenance"
+    },
+    {
+      "id": 3,
+      "vessel_name": "Pacific Trader",
+      "owner": "Pacific Marine Co.",
+      "operator": "Maritime Solutions",
+      "classification_society": "Bureau Veritas",
+      "gross_tonnage": 30000,
+      "net_tonnage": 20000,
+      "year_built": 2005,
+      "home_port": "San Francisco",
+      "port_of_registry": "San Francisco",
+      "status": "Decommissioned"
+    },
+    {
+      "id": 4,
+      "vessel_name": "Arctic Voyager",
+      "owner": "Northern Expeditions",
+      "operator": "Arctic Maritime",
+      "classification_society": "Det Norske Veritas",
+      "gross_tonnage": 45000,
+      "net_tonnage": 28000,
+      "year_built": 2012,
+      "home_port": "Anchorage",
+      "port_of_registry": "Anchorage",
+      "status": "Active"
+    }
+  ]
+  

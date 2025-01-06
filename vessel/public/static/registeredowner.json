@@ -1,0 +1,21 @@
+[
+    {
+      "id": 1,
+      "vessel_name": "Vessel One",
+      "registered_owner_name": "Owner A",
+      "gross_tonnage": 5000,
+      "net_tonnage": 3000,
+      "vessel_usage": "Cargo",
+      "classification_society": "Class A"
+    },
+    {
+      "id": 2,
+      "vessel_name": "Vessel Two",
+      "registered_owner_name": "Owner B",
+      "gross_tonnage": 7000,
+      "net_tonnage": 4000,
+      "vessel_usage": "Passenger",
+      "classification_society": "Class B"
+    }
+  ]
+  

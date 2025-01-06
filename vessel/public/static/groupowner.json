@@ -1,0 +1,59 @@
+[
+    {
+      "VesselId": "V001",
+      "VesselName": "Mariner's Pride",
+      "GroupOwner": {
+        "GroupOwnerName": "Mariner Shipping Co.",
+        "OwnerAddress": "123 Shipping Lane, Monrovia, Liberia",
+        "Contact": {
+          "Phone": "+231123456789",
+          "Email": "contact@marinershipping.com"
+        },
+        "Established": "1990"
+      },
+      "RegisteredOwner": {
+        "OwnerName": "Mariner Shipping Ltd.",
+        "OwnerAddress": "789 Sea View Road, London, UK",
+        "Contact": {
+          "Phone": "+44 2071234567",
+          "Email": "info@marinershippingltd.com"
+        }
+      },
+      "Crew": [
+        {
+          "Name": "John Doe",
+          "Role": "Captain",
+          "Experience": "15 years",
+          "Nationality": "USA",
+          "Contact": {
+            "Phone": "+1 555 2345678",
+            "Email": "captain.johndoe@example.com"
+          }
+        },
+        {
+          "Name": "Jane Smith",
+          "Role": "First Officer",
+          "Experience": "8 years",
+          "Nationality": "Canada",
+          "Contact": {
+            "Phone": "+1 555 8765432",
+            "Email": "firstofficer.jane.smith@example.com"
+          }
+        }
+      ],
+      "OperationalStatus": {
+        "CurrentPort": "Port of Rotterdam",
+        "DestinationPort": "Port of Singapore",
+        "VoyageStatus": "In Transit",
+        "ETADestination": "2025-02-25",
+        "CargoType": "General Cargo"
+      },
+      "Insurance": {
+        "PolicyNumber": "IP1234MAR",
+        "ExpirationDate": "2025-12-15",
+        "Provider": "Global Maritime Insurances"
+      },
+      "Remarks": "No outstanding issues"
+    }
+  ]
+  

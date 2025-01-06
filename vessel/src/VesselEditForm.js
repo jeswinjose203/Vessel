@@ -78,24 +78,49 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
   //   onSave(newVesselData);
   //   onClose();
   // };
-  const handleSave = () => {
-    if (!validateForm()) return;  // Ensure the form is valid
+  // const handleSave = () => {
+  //   if (!validateForm()) return;  // Ensure the form is valid
   
-    const newVesselData = { ...formData };  // Clone form data (to prevent mutation)
+  //   const newVesselData = { ...formData };  // Clone form data (to prevent mutation)
     
-    if (vessel && vessel.id) {
-      // If vessel exists, update the fields
-      const updatedVesselData = { ...vessel, ...newVesselData };
-      onSave(updatedVesselData);  // Send the updated data to the parent (or API)
-    } else {
-      // If it's a new vessel, set an ID and send the new data
-      newVesselData.id = Date.now();  // Assign a unique ID for the new vessel
-      onSave(newVesselData);  // Send the new data to the parent (or API)
+  //   if (vessel && vessel.id) {
+  //     // If vessel exists, update the fields
+  //     const updatedVesselData = { ...vessel, ...newVesselData };
+  //     onSave(updatedVesselData);  // Send the updated data to the parent (or API)
+  //   } else {
+  //     // If it's a new vessel, set an ID and send the new data
+  //     newVesselData.id = Date.now();  // Assign a unique ID for the new vessel
+  //     onSave(newVesselData);  // Send the new data to the parent (or API)
+  //   }
+  
+  //   onClose();  // Close the form/dialog
+  // };
+  const handleSave = async () => {
+    if (!validateForm()) return;
+
+    const newVesselData = { ...formData };
+
+    try {
+        const response = await fetch('http://localhost:5009/vesseldata/newvesseldata', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newVesselData),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save vessel data');
+        }
+
+        const savedVessel = await response.json();
+        onSave(savedVessel);  // Handle the response from the server
+        onClose();  // Close the dialog
+    } catch (error) {
+        console.error('Error saving vessel data:', error);
     }
-  
-    onClose();  // Close the form/dialog
-  };
-  
+};
+
   
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>

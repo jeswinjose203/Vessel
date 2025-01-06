@@ -50,5 +50,31 @@ namespace backend.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpPost("newvesseldata")]
+        public async Task<IActionResult> CreateVessel([FromBody] Vessel vessel)
+        {
+            if (vessel == null)
+            {
+                return BadRequest("Vessel data is required.");
+            }
+
+            try
+            {
+                // Add the new vessel to the context
+                _context.Vessels.Add(vessel);
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                // Return the created vessel data with a 201 Created status
+                return CreatedAtAction(nameof(GetVessels), new { id = vessel.Id }, vessel);
+            }
+            catch (System.Exception ex)
+            {
+                // Log the error (you can replace with a proper logging mechanism)
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }

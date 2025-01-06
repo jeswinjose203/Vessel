@@ -11,7 +11,7 @@ const PortOfRegistries = () => {
 
   useEffect(() => {
     // Fetch vessel data from the JSON file
-    fetch('/static/vesselData.json')
+    fetch('/static/portofregistries.json')
       .then((response) => {
         if (!response.ok) throw new Error('Failed to fetch vessel data');
         return response.json();
@@ -28,6 +28,7 @@ const PortOfRegistries = () => {
     setSelectedPort(port);
     const filtered = vesselData.filter((vessel) => vessel.port_of_registry === port);
     setFilteredVessels(filtered);
+    setEditVessel(null); // Exit edit mode
   };
 
   const handleEditClick = (vessel) => {
@@ -39,41 +40,28 @@ const PortOfRegistries = () => {
   };
 
   const saveVesselChanges = () => {
-    const updatedPort = editVessel.port_of_registry;
-
     setVesselData((prevData) => {
       const updatedData = prevData.map((vessel) =>
         vessel.id === editVessel.id ? editVessel : vessel
       );
-
-      // Add the new port to the list of ports if it doesn't already exist
-      if (!ports.includes(updatedPort)) {
-        setPorts([...ports, updatedPort]);
-      }
-
       return updatedData;
     });
 
-    // Re-filter vessels for the selected port
-    if (selectedPort === updatedPort) {
-      setFilteredVessels((prevData) =>
-        prevData.map((vessel) =>
-          vessel.id === editVessel.id ? editVessel : vessel
-        )
-      );
-    } else {
-      handlePortClick(selectedPort); // Refresh the filtered list
-    }
+    setFilteredVessels((prevData) =>
+      prevData.map((vessel) =>
+        vessel.id === editVessel.id ? editVessel : vessel
+      )
+    );
 
     setEditVessel(null); // Exit edit mode
   };
 
-  const handleAddPort = () => {
-    if (newPort && !ports.includes(newPort)) {
-      setPorts([...ports, newPort]);
-      setNewPort('');
-    }
-  };
+  // const handleAddPort = () => {
+  //   if (newPort && !ports.includes(newPort)) {
+  //     setPorts([...ports, newPort]);
+  //     setNewPort('');
+  //   }
+  // };
 
   return (
     <div className="por-container">
@@ -93,7 +81,7 @@ const PortOfRegistries = () => {
               </li>
             ))}
           </ul>
-          <div className="add-port">
+          {/* <div className="add-port">
             <input
               type="text"
               placeholder="Add New Port"
@@ -101,10 +89,10 @@ const PortOfRegistries = () => {
               onChange={(e) => setNewPort(e.target.value)}
             />
             <button onClick={handleAddPort}>Add</button>
-          </div>
+          </div> */}
         </div>
 
-        {/* Vessel Details Section */}
+        {/* Vessel Master Data Section */}
         <div className="por-details">
           {selectedPort ? (
             <div>
@@ -113,84 +101,106 @@ const PortOfRegistries = () => {
                 {filteredVessels.map((vessel) => (
                   <div key={vessel.id} className="vessel-card">
                     {editVessel?.id === vessel.id ? (
-                      <div>
-                        {/* Editable Fields */}
-                        <input
-                          type="text"
-                          value={editVessel.vessel_name}
-                          onChange={(e) =>
-                            handleEditChange('vessel_name', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.imo_number}
-                          onChange={(e) =>
-                            handleEditChange('imo_number', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.vessel_type}
-                          onChange={(e) =>
-                            handleEditChange('vessel_type', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.vessel_subtype}
-                          onChange={(e) =>
-                            handleEditChange('vessel_subtype', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.flag}
-                          onChange={(e) => handleEditChange('flag', e.target.value)}
-                        />
-                        <select
-                          value={editVessel.port_of_registry}
-                          onChange={(e) =>
-                            handleEditChange('port_of_registry', e.target.value)
-                          }
-                        >
-                          {ports.map((port, index) => (
-                            <option key={index} value={port}>
-                              {port}
-                            </option>
-                          ))}
-                          <option value="">Other</option>
-                        </select>
-                        <input
-                          type="text"
-                          value={editVessel.status}
-                          onChange={(e) =>
-                            handleEditChange('status', e.target.value)
-                          }
-                        />
+                      <div className="edit-form">
+                        <div className="field">
+                          <label>Owner:</label>
+                          <input
+                            type="text"
+                            value={editVessel.owner || ''}
+                            onChange={(e) =>
+                              handleEditChange('owner', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Operator:</label>
+                          <input
+                            type="text"
+                            value={editVessel.operator || ''}
+                            onChange={(e) =>
+                              handleEditChange('operator', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Classification Society:</label>
+                          <input
+                            type="text"
+                            value={editVessel.classification_society || ''}
+                            onChange={(e) =>
+                              handleEditChange(
+                                'classification_society',
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Gross Tonnage:</label>
+                          <input
+                            type="number"
+                            value={editVessel.gross_tonnage || ''}
+                            onChange={(e) =>
+                              handleEditChange('gross_tonnage', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Net Tonnage:</label>
+                          <input
+                            type="number"
+                            value={editVessel.net_tonnage || ''}
+                            onChange={(e) =>
+                              handleEditChange('net_tonnage', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Year Built:</label>
+                          <input
+                            type="number"
+                            value={editVessel.year_built || ''}
+                            onChange={(e) =>
+                              handleEditChange('year_built', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Home Port:</label>
+                          <input
+                            type="text"
+                            value={editVessel.home_port || ''}
+                            onChange={(e) =>
+                              handleEditChange('home_port', e.target.value)
+                            }
+                          />
+                        </div>
                         <button onClick={saveVesselChanges}>Save</button>
                       </div>
                     ) : (
                       <div>
                         <h3>{vessel.vessel_name}</h3>
                         <p>
-                          <strong>IMO Number:</strong> {vessel.imo_number}
+                          <strong>Owner:</strong> {vessel.owner}
                         </p>
                         <p>
-                          <strong>Vessel Type:</strong> {vessel.vessel_type}
+                          <strong>Operator:</strong> {vessel.operator}
                         </p>
                         <p>
-                          <strong>Vessel Subtype:</strong> {vessel.vessel_subtype}
+                          <strong>Classification Society:</strong>{' '}
+                          {vessel.classification_society}
                         </p>
                         <p>
-                          <strong>Flag:</strong> {vessel.flag}
+                          <strong>Gross Tonnage:</strong> {vessel.gross_tonnage}
                         </p>
                         <p>
-                          <strong>Port of Registry:</strong>{' '}
-                          {vessel.port_of_registry}
+                          <strong>Net Tonnage:</strong> {vessel.net_tonnage}
                         </p>
                         <p>
-                          <strong>Status:</strong> {vessel.status}
+                          <strong>Year Built:</strong> {vessel.year_built}
+                        </p>
+                        <p>
+                          <strong>Home Port:</strong> {vessel.home_port}
                         </p>
                         <button onClick={() => handleEditClick(vessel)}>
                           Edit

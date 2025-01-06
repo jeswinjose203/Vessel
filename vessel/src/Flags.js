@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import './Flags.css'; // CSS file for styling
+import './Flags.css';
 
 const Flags = () => {
   const [vesselData, setVesselData] = useState([]);
   const [flags, setFlags] = useState([]);
   const [selectedFlag, setSelectedFlag] = useState(null);
   const [filteredVessels, setFilteredVessels] = useState([]);
-  const [editVessel, setEditVessel] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [lastEdited, setLastEdited] = useState(null);
+  const [editVesselData, setEditVesselData] = useState({});
   const [newFlag, setNewFlag] = useState('');
 
   useEffect(() => {
-    // Fetch vessel data from the JSON file
+    // Fetch vessel data from JSON
     fetch('/static/vesselData.json')
       .then((response) => {
         if (!response.ok) throw new Error('Failed to fetch vessel data');
@@ -26,52 +28,41 @@ const Flags = () => {
 
   const handleFlagClick = (flag) => {
     setSelectedFlag(flag);
-    const filtered = vesselData.filter((vessel) => vessel.flag === flag);
-    setFilteredVessels(filtered);
+    setFilteredVessels(vesselData.filter((vessel) => vessel.flag === flag));
+    setEditMode(false);
   };
 
   const handleEditClick = (vessel) => {
-    setEditVessel(vessel); // Set the vessel to be edited
+    setEditVesselData(vessel);
+    setEditMode(true);
   };
 
-  const handleEditChange = (field, value) => {
-    setEditVessel({ ...editVessel, [field]: value });
+  const handleVesselDataChange = (field, value) => {
+    setEditVesselData({ ...editVesselData, [field]: value });
   };
 
   const saveVesselChanges = () => {
-    const updatedFlag = editVessel.flag;
+    const updatedData = vesselData.map((vessel) =>
+      vessel.id === editVesselData.id ? editVesselData : vessel
+    );
+    setVesselData(updatedData);
 
-    setVesselData((prevData) => {
-      const updatedData = prevData.map((vessel) =>
-        vessel.id === editVessel.id ? editVessel : vessel
-      );
-
-      if (!flags.includes(updatedFlag)) {
-        setFlags([...flags, updatedFlag]);
-      }
-
-      return updatedData;
-    });
-
-    if (selectedFlag === updatedFlag) {
-      setFilteredVessels((prevData) =>
-        prevData.map((vessel) =>
-          vessel.id === editVessel.id ? editVessel : vessel
-        )
-      );
+    if (selectedFlag === editVesselData.flag) {
+      setFilteredVessels(updatedData.filter((vessel) => vessel.flag === selectedFlag));
     } else {
-      handleFlagClick(selectedFlag);
+      setFilteredVessels(updatedData.filter((vessel) => vessel.flag === selectedFlag));
     }
 
-    setEditVessel(null); // Exit edit mode
+    setLastEdited(new Date().toLocaleString());
+    setEditMode(false);
   };
 
-  const handleAddFlag = () => {
-    if (newFlag && !flags.includes(newFlag)) {
-      setFlags([...flags, newFlag]);
-      setNewFlag('');
-    }
-  };
+  // const handleAddFlag = () => {
+  //   if (newFlag && !flags.includes(newFlag)) {
+  //     setFlags([...flags, newFlag]);
+  //     setNewFlag('');
+  //   }
+  // };
 
   return (
     <div className="flags-container">
@@ -92,80 +83,81 @@ const Flags = () => {
             ))}
           </ul>
           <div className="add-flag">
-            <input
+            {/* <input
               type="text"
               placeholder="Add New Flag"
               value={newFlag}
               onChange={(e) => setNewFlag(e.target.value)}
-            />
-            <button onClick={handleAddFlag}>Add</button>
+            /> */}
+            {/* <button onClick={handleAddFlag}>Add</button> */}
           </div>
         </div>
 
-        {/* Flag Details Section */}
+        {/* Details Section */}
         <div className="flag-details">
           {selectedFlag ? (
             <div>
               <h2>Vessels under {selectedFlag} Flag</h2>
-              <div className="vessel-card-container">
+              <div className="vessel-list">
                 {filteredVessels.map((vessel) => (
-                  <div key={vessel.id} className="vessel-card">
-                    {editVessel?.id === vessel.id ? (
-                      <div>
-                        <input
-                          type="text"
-                          value={editVessel.vessel_name}
-                          onChange={(e) =>
-                            handleEditChange('vessel_name', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.imo_number}
-                          onChange={(e) =>
-                            handleEditChange('imo_number', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.vessel_type}
-                          onChange={(e) =>
-                            handleEditChange('vessel_type', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.vessel_subtype}
-                          onChange={(e) =>
-                            handleEditChange('vessel_subtype', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.port_of_registry}
-                          onChange={(e) =>
-                            handleEditChange('port_of_registry', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.status}
-                          onChange={(e) =>
-                            handleEditChange('status', e.target.value)
-                          }
-                        />
-                        <select
-                          value={editVessel.flag}
-                          onChange={(e) =>
-                            handleEditChange('flag', e.target.value)
-                          }
-                        >
-                          {flags.map((flag, index) => (
-                            <option key={index} value={flag}>
-                              {flag}
-                            </option>
-                          ))}
-                        </select>
+                  <div key={vessel.id} className="vessel-item">
+                    {editMode && editVesselData.id === vessel.id ? (
+                      <div className="edit-form">
+                        <div className="field">
+                          <label>Onboarded Date:</label>
+                          <input
+                            type="date"
+                            value={editVesselData.onboarded_date || ''}
+                            onChange={(e) =>
+                              handleVesselDataChange('onboarded_date', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Leaving Date:</label>
+                          <input
+                            type="date"
+                            value={editVesselData.leaving_date || ''}
+                            onChange={(e) =>
+                              handleVesselDataChange('leaving_date', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Status:</label>
+                          <input
+                            type="text"
+                            value={editVesselData.status || ''}
+                            onChange={(e) => handleVesselDataChange('status', e.target.value)}
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Last Inspection Date:</label>
+                          <input
+                            type="date"
+                            value={editVesselData.last_inspection_date || ''}
+                            onChange={(e) =>
+                              handleVesselDataChange('last_inspection_date', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Next Inspection Due:</label>
+                          <input
+                            type="date"
+                            value={editVesselData.next_inspection_due || ''}
+                            onChange={(e) =>
+                              handleVesselDataChange('next_inspection_due', e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
+                          <label>Remarks:</label>
+                          <textarea
+                            value={editVesselData.remarks || ''}
+                            onChange={(e) => handleVesselDataChange('remarks', e.target.value)}
+                          ></textarea>
+                        </div>
                         <button onClick={saveVesselChanges}>Save</button>
                       </div>
                     ) : (
@@ -175,30 +167,32 @@ const Flags = () => {
                           <strong>IMO Number:</strong> {vessel.imo_number}
                         </p>
                         <p>
-                          <strong>Vessel Type:</strong> {vessel.vessel_type}
+                          <strong>Onboarded Date:</strong> {vessel.onboarded_date || 'N/A'}
                         </p>
                         <p>
-                          <strong>Vessel Subtype:</strong>{' '}
-                          {vessel.vessel_subtype}
+                          <strong>Leaving Date:</strong> {vessel.leaving_date || 'N/A'}
                         </p>
                         <p>
-                          <strong>Port of Registry:</strong>{' '}
-                          {vessel.port_of_registry}
+                          <strong>Status:</strong> {vessel.status || 'N/A'}
                         </p>
                         <p>
-                          <strong>Status:</strong> {vessel.status}
+                          <strong>Last Inspection Date:</strong>{' '}
+                          {vessel.last_inspection_date || 'N/A'}
                         </p>
                         <p>
-                          <strong>Flag:</strong> {vessel.flag}
+                          <strong>Next Inspection Due:</strong>{' '}
+                          {vessel.next_inspection_due || 'N/A'}
                         </p>
-                        <button onClick={() => handleEditClick(vessel)}>
-                          Edit
-                        </button>
+                        <p>
+                          <strong>Remarks:</strong> {vessel.remarks || 'N/A'}
+                        </p>
+                        <button onClick={() => handleEditClick(vessel)}>Edit</button>
                       </div>
                     )}
                   </div>
                 ))}
               </div>
+              {lastEdited && <p>Last edited on: {lastEdited}</p>}
             </div>
           ) : (
             <p>Select a flag from the sidebar to view vessels.</p>
