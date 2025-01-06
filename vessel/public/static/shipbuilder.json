@@ -1,0 +1,74 @@
+[
+    {
+      "ShipyardId": "S001",
+      "ShipyardName": "ABC Shipbuilding Ltd.",
+      "ShipyardAddress": "123 Ocean Ave, Shipyard City, USA",
+      "Country": "USA",
+      "Region": "North America",
+      "PhoneNumber": "+1-555-1234567",
+      "Email": "contact@abcshipbuilding.com",
+      "Website": "www.abcshipbuilding.com",
+      "YearEstablished": 1992,
+      "Certifications": [
+        "ISO 9001",
+        "IMO",
+        "Lloyd's Register"
+      ],
+      "KeyPersonnel": [
+        {
+          "Name": "John Doe",
+          "Title": "CEO",
+          "Email": "johndoe@abcshipbuilding.com",
+          "Phone": "+1-555-7654321"
+        },
+        {
+          "Name": "Jane Smith",
+          "Title": "Project Manager",
+          "Email": "janesmith@abcshipbuilding.com",
+          "Phone": "+1-555-9876543"
+        }
+      ],
+      "ShipBuildingCapacity": "500,000 DWT",
+      "Specializations": [
+        "Cargo Ships",
+        "Tankers",
+        "Luxury Yachts"
+      ]
+    },
+    {
+      "ShipyardId": "S002",
+      "ShipyardName": "XYZ Shipbuilding Corporation",
+      "ShipyardAddress": "456 Industrial Rd, Shipyard Town, UK",
+      "Country": "UK",
+      "Region": "Europe",
+      "PhoneNumber": "+44-123-9876543",
+      "Email": "info@xyzshipbuilding.com",
+      "Website": "www.xyzshipbuilding.com",
+      "YearEstablished": 1985,
+      "Certifications": [
+        "ISO 14001",
+        "BV",
+        "DNV GL"
+      ],
+      "KeyPersonnel": [
+        {
+          "Name": "Tom Harris",
+          "Title": "President",
+          "Email": "tomharris@xyzshipbuilding.com",
+          "Phone": "+44-123-3456789"
+        },
+        {
+          "Name": "Emma Brown",
+          "Title": "Head of Operations",
+          "Email": "emmabrown@xyzshipbuilding.com",
+          "Phone": "+44-123-2468101"
+        }
+      ],
+      "ShipBuildingCapacity": "350,000 DWT",
+      "Specializations": [
+        "Cruise Ships",
+        "Research Vessels"
+      ]
+    }
+  ]
+  

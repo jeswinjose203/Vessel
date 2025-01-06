@@ -15,10 +15,10 @@ namespace backend.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.7")
+                .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("YourNamespace.Models.Vessel", b =>
+            modelBuilder.Entity("backend.Models.Vessel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Shipyards.css'; // CSS for styling
 
 const ShipBuilders = () => {
@@ -9,19 +9,16 @@ const ShipBuilders = () => {
   const [editVessel, setEditVessel] = useState(null); // State for editing a vessel
   const [newShipyard, setNewShipyard] = useState(''); // State for adding a new shipyard
 
+  const [editShipyard, setEditShipyard] = useState(null); // For editing shipyard data
+
+  // Fetch shipyard master data
   useEffect(() => {
-    // Fetch vessel data from the JSON file
-    fetch('/static/vesselData.json')
-      .then((response) => {
-        if (!response.ok) throw new Error('Failed to fetch vessel data');
-        return response.json();
-      })
+    fetch("/static/shipbuilder.json")
+      .then((response) => response.json())
       .then((data) => {
-        setVesselData(data);
-        const uniqueShipyards = [...new Set(data.map((vessel) => vessel.Shipyard))];
-        setShipyards(uniqueShipyards);
+        setShipyards(data);
       })
-      .catch((error) => console.error('Error fetching vessel data:', error));
+      .catch((error) => console.error("Error fetching master data:", error));
   }, []);
 
   const handleShipyardClick = (shipyard) => {
@@ -75,6 +72,20 @@ const ShipBuilders = () => {
     }
   };
 
+  // Edit Shipyard details
+  const handleEditShipyardChange = (field, value) => {
+    setEditShipyard({ ...editShipyard, [field]: value });
+  };
+
+  const saveShipyardChanges = () => {
+    const updatedShipyards = shipyards.map((shipyard) =>
+      shipyard.ShipyardId === editShipyard.ShipyardId ? editShipyard : shipyard
+    );
+    setShipyards(updatedShipyards);
+    setSelectedShipyard(editShipyard);
+    setEditShipyard(null);
+  };
+
   return (
     <div className="shipyard-container">
       <h1 className="header">Shipyards</h1>
@@ -83,38 +94,99 @@ const ShipBuilders = () => {
         <div className="shipyard-sidebar">
           <h3>Available Shipyards</h3>
           <ul className="shipyard-list">
-            {shipyards.map((shipyard, index) => (
+            {shipyards.map((shipyard) => (
               <li
-                key={index}
+                key={shipyard.ShipyardId}
                 className={`shipyard-item ${shipyard === selectedShipyard ? 'active' : ''}`}
                 onClick={() => handleShipyardClick(shipyard)}
               >
-                {shipyard}
+                {shipyard.ShipyardName}
               </li>
             ))}
           </ul>
-          <div className="add-shipyard">
-            <input
-              type="text"
-              placeholder="Add New Shipyard"
-              value={newShipyard}
-              onChange={(e) => setNewShipyard(e.target.value)}
-            />
-            <button onClick={handleAddShipyard}>Add</button>
-          </div>
+          
         </div>
 
         {/* Vessel Details Section */}
         <div className="shipyard-details">
           {selectedShipyard ? (
             <div>
-              <h2>Vessels Built at {selectedShipyard}</h2>
+              <h2>Shipyard Details: {selectedShipyard.ShipyardName}</h2>
               <div className="vessel-card-container">
+                {/* Shipyard editable fields */}
+                {editShipyard?.ShipyardId === selectedShipyard.ShipyardId ? (
+                  <div className="edit-shipyard-details">
+                    <input
+                      type="text"
+                      value={editShipyard.ShipyardName}
+                      onChange={(e) =>
+                        handleEditShipyardChange('ShipyardName', e.target.value)
+                      }
+                    />
+                    <input
+                      type="text"
+                      value={editShipyard.ShipyardAddress}
+                      onChange={(e) =>
+                        handleEditShipyardChange('ShipyardAddress', e.target.value)
+                      }
+                    />
+                    <input
+                      type="text"
+                      value={editShipyard.Country}
+                      onChange={(e) => handleEditShipyardChange('Country', e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      value={editShipyard.Region}
+                      onChange={(e) => handleEditShipyardChange('Region', e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      value={editShipyard.PhoneNumber}
+                      onChange={(e) => handleEditShipyardChange('PhoneNumber', e.target.value)}
+                    />
+                    <input
+                      type="email"
+                      value={editShipyard.Email}
+                      onChange={(e) => handleEditShipyardChange('Email', e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      value={editShipyard.Website}
+                      onChange={(e) => handleEditShipyardChange('Website', e.target.value)}
+                    />
+                    <button onClick={saveShipyardChanges}>Save</button>
+                  </div>
+                ) : (
+                  <div className="shipyard-info">
+                    <p>
+                      <strong>Address:</strong> {selectedShipyard.ShipyardAddress}
+                    </p>
+                    <p>
+                      <strong>Country:</strong> {selectedShipyard.Country}
+                    </p>
+                    <p>
+                      <strong>Region:</strong> {selectedShipyard.Region}
+                    </p>
+                    <p>
+                      <strong>Phone Number:</strong> {selectedShipyard.PhoneNumber}
+                    </p>
+                    <p>
+                      <strong>Email:</strong> {selectedShipyard.Email}
+                    </p>
+                    <p>
+                      <strong>Website:</strong> {selectedShipyard.Website}
+                    </p>
+                    <button onClick={() => setEditShipyard(selectedShipyard)}>Edit Shipyard</button>
+                  </div>
+                )}
+
+                {/* Vessel details (unchanged) */}
                 {filteredVessels.map((vessel) => (
                   <div key={vessel.id} className="vessel-card">
                     {editVessel?.id === vessel.id ? (
                       <div>
-                        {/* Editable Fields */}
+                        {/* Editable Fields for Vessel */}
                         <input
                           type="text"
                           value={editVessel.vessel_name}
@@ -129,71 +201,13 @@ const ShipBuilders = () => {
                             handleEditChange('imo_number', e.target.value)
                           }
                         />
-                        <input
-                          type="text"
-                          value={editVessel.vessel_type}
-                          onChange={(e) =>
-                            handleEditChange('vessel_type', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.BuildYear}
-                          onChange={(e) =>
-                            handleEditChange('BuildYear', e.target.value)
-                          }
-                        />
-                        <input
-                          type="text"
-                          value={editVessel.port_of_registry}
-                          onChange={(e) =>
-                            handleEditChange('port_of_registry', e.target.value)
-                          }
-                        />
-                        <select
-                          value={editVessel.Shipyard}
-                          onChange={(e) =>
-                            handleEditChange('Shipyard', e.target.value)
-                          }
-                        >
-                          {shipyards.map((shipyard, index) => (
-                            <option key={index} value={shipyard}>
-                              {shipyard}
-                            </option>
-                          ))}
-                          <option value="">Other</option>
-                        </select>
-                        <input
-                          type="text"
-                          value={editVessel.status}
-                          onChange={(e) =>
-                            handleEditChange('status', e.target.value)
-                          }
-                        />
+                        {/* More fields */}
                         <button onClick={saveVesselChanges}>Save</button>
                       </div>
                     ) : (
                       <div>
                         <h3>{vessel.vessel_name}</h3>
-                        <p>
-                          <strong>IMO Number:</strong> {vessel.imo_number}
-                        </p>
-                        <p>
-                          <strong>Vessel Type:</strong> {vessel.vessel_type}
-                        </p>
-                        <p>
-                          <strong>Build Year:</strong> {vessel.BuildYear}
-                        </p>
-                        <p>
-                          <strong>Port of Registry:</strong>{' '}
-                          {vessel.port_of_registry}
-                        </p>
-                        <p>
-                          <strong>Shipyard:</strong> {vessel.Shipyard}
-                        </p>
-                        <p>
-                          <strong>Status:</strong> {vessel.status}
-                        </p>
+                        {/* Other vessel details */}
                         <button onClick={() => handleEditClick(vessel)}>
                           Edit
                         </button>

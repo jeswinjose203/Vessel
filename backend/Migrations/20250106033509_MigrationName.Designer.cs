@@ -10,17 +10,17 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250104101811_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250106033509_MigrationName")]
+    partial class MigrationName
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.7")
+                .HasAnnotation("ProductVersion", "6.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("YourNamespace.Models.Vessel", b =>
+            modelBuilder.Entity("backend.Models.Vessel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
