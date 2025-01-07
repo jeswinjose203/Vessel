@@ -33,95 +33,157 @@ const ReusableTextField = ({ label, name, value, onChange, type = "text", requir
 );
 
 export default function VesselEditForm({ open, onClose, vessel, onSave }) {
-  const [formData, setFormData] = useState(vessel || {});
+   const [formData, setFormData] = useState(vessel || {});
   const [errors, setErrors] = useState({});
-
+  const [vesselType, setVesselType] = useState(formData.vesselType || '');
+  const [vesselSubtype, setVesselSubtype] = useState(formData.vesselSubtype || '');
+  
   useEffect(() => {
     setFormData(vessel || {});
   }, [vessel]);
 
+  const vesselTypeOptions = [
+    { label: "Cargo", subtypes: ["General Cargo", "Container"] },
+    { label: "Tanker", subtypes: ["Oil", "Chemical", "LNG"] },
+    { label: "Bulk Carrier", subtypes: ["Ore", "Grain"] },
+    { label: "LNG Tanker", subtypes: ["LNG"] },
+  ];
+  useEffect(() => {
+    if (vessel) {
+      setFormData(vessel);
+      setVesselType(vessel.vesselType || "");
+      setVesselSubtype(vessel.vesselSubtype || "");
+    }
+  }, [vessel]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // List of fields that should be treated as integers
+    const intFields = [
+      "buildYear","grossTonnage", "netTonnage", "deadweightTonnage", "lengthOverall",
+      "beam", "draft", "enginePower", "speed", "crewCapacity",
+      "passengerCapacity", "cargoCapacity", "fuelCapacity", "operationalRange"
+    ];
+  
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: intFields.includes(name) ? parseInt(value) || "" : value,
     }));
+  
+    // Reset vesselSubtype when vesselType changes
+    if (name === "vesselType") {
+      setVesselType(value);
+      setVesselSubtype(""); // Reset the subtype when the type changes
+    }
   };
+  
+
 
   const validateForm = () => {
     const newErrors = {};
-    const requiredFields = ["vessel_name", "imo_number", "vessel_type"];
+    const requiredFields = ["vesselName", "imoNumber", "vesselType"];
     requiredFields.forEach((field) => {
       if (!formData[field]) newErrors[field] = true;
     });
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  const generateVesselId = () => {
+    return `VSL-${Date.now()}`; // Simple ID using the current timestamp
+  };
 
-  // const handleSave = () => {
-  //   if (!validateForm()) return;
 
-  //   const newVesselData = { ...formData };
-  //   const storedVesselData = JSON.parse(localStorage.getItem("vesselData")) || [];
+  const generateId = () => Math.floor(Math.random() * 1000000); // Random ID between 0 and 999,999
+  // Use a timestamp as a unique id
 
-  //   if (vessel) {
-  //     const updatedVesselData = storedVesselData.map((v) =>
-  //       v.id === newVesselData.id ? newVesselData : v
-  //     );
-  //     localStorage.setItem("vesselData", JSON.stringify(updatedVesselData));
-  //   } else {
-  //     newVesselData.id = Date.now(); // Assign unique ID for new vessels
-  //     storedVesselData.push(newVesselData);
-  //     localStorage.setItem("vesselData", JSON.stringify(storedVesselData));
-  //   }
-
-  //   onSave(newVesselData);
-  //   onClose();
-  // };
-  // const handleSave = () => {
-  //   if (!validateForm()) return;  // Ensure the form is valid
-  
-  //   const newVesselData = { ...formData };  // Clone form data (to prevent mutation)
-    
-  //   if (vessel && vessel.id) {
-  //     // If vessel exists, update the fields
-  //     const updatedVesselData = { ...vessel, ...newVesselData };
-  //     onSave(updatedVesselData);  // Send the updated data to the parent (or API)
-  //   } else {
-  //     // If it's a new vessel, set an ID and send the new data
-  //     newVesselData.id = Date.now();  // Assign a unique ID for the new vessel
-  //     onSave(newVesselData);  // Send the new data to the parent (or API)
-  //   }
-  
-  //   onClose();  // Close the form/dialog
-  // };
   const handleSave = async () => {
-    if (!validateForm()) return;
-
-    const newVesselData = { ...formData };
-
-    try {
-        const response = await fetch('http://localhost:5009/vesseldata/newvesseldata', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(newVesselData),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to save vessel data');
-        }
-
-        const savedVessel = await response.json();
-        onSave(savedVessel);  // Handle the response from the server
-        onClose();  // Close the dialog
-    } catch (error) {
-        console.error('Error saving vessel data:', error);
+    if (!validateForm()) {
+      alert("Please fill out all required fields.");
+      return;
     }
-};
+  console.log(typeof(formData.vesselId),typeof(generateVesselId()));
+    // Generate vesselId or get it from elsewhere, for example:
+    const vesselId = formData.vesselId || generateVesselId(); // Ensure vesselId is generated
 
+    // Ensure id is not null
+    const id = parseInt(formData.id !== null && formData.id !== undefined ? formData.id : generateId()); // Generate id if missing
+
+    // Add vesselId and id to the form data
+    const formDataWithIds = { ...formData, vesselId, id };
   
+    // Ensure empty fields are sent as null
+    const sanitizedData = Object.keys(formDataWithIds).reduce((acc, key) => {
+      acc[key] = formDataWithIds[key] === "" || formDataWithIds[key] === undefined ? null : formDataWithIds[key];
+      return acc;
+    }, {});
+  
+    console.log("Payload:", JSON.stringify(sanitizedData));
+  
+    try {
+      const response = await fetch("http://localhost:5009/vesseldata/newvesseldata", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sanitizedData),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+  
+      const savedVessel = await response.json();
+      alert("Vessel data saved successfully!");
+  
+      onSave(savedVessel); // Notify parent component
+      onClose(); // Close dialog
+    } catch (error) {
+      console.error("Error saving vessel data:", error);
+      alert("Failed to save vessel data. Please try again later.");
+    }
+  };
+  
+  
+  
+  // const handleSave = async () => {
+  //   if (!validateForm()) {
+  //     alert("Please fill out all required fields.");
+  //     return;
+  //   }
+  
+  //   const newVesselData = { ...formData };
+  //   console.log(JSON.stringify(newVesselData));
+  //   try {
+  //     const response = await fetch("http://localhost:5009/vesseldata/newvesseldata", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify(newVesselData),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error(`Error1: ${response.status} ${response.statusText}`);
+  //     }
+  
+  //     const savedVessel = await response.json();
+  //     alert("Vessel data saved successfully!");
+  
+  //     // Call the onSave callback to pass the new data back to the parent component
+  //     onSave(savedVessel);
+  
+  //     // Close the dialog
+  //     onClose();
+  //   } catch (error) {
+  //     console.error("Error saving vessel data:", error);
+  //     alert("Failed to save vessel data. Please try again later.");
+  //   }
+  // };
+
+   const vesselTypeSelected = vesselTypeOptions.find(
+    (option) => option.label === vesselType
+  )
   return (
     <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>{vessel ? 'Edit Vessel' : 'Add Vessel'}</DialogTitle>
@@ -132,6 +194,8 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
         </Typography>
         <Divider />
         <Grid container spacing={2}>
+          {/* Add a hidden field for vesselId */}
+  
           <Grid item xs={6}>
             <TextField
               label="Vessel Name"
@@ -184,13 +248,22 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             </FormControl>
           </Grid>
           <Grid item xs={6}>
-            <TextField
-              label="Vessel Subtype"
-              name="vesselSubtype"
-              value={formData.vesselSubtype || ''}
-              onChange={handleChange}
-              fullWidth
-            />
+            <FormControl fullWidth disabled={!vesselType}>
+              <InputLabel>Vessel Subtype</InputLabel>
+              <Select
+                name="vesselSubtype"
+                value={formData.vesselSubtype || ""}
+                onChange={handleChange}
+              >
+                {vesselTypeSelected
+                  ? vesselTypeSelected.subtypes.map((subtype) => (
+                      <MenuItem key={subtype} value={subtype}>
+                        {subtype}
+                      </MenuItem>
+                    ))
+                  : null}
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={6}>
             <TextField
@@ -406,14 +479,21 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
             />
           </Grid>
           <Grid item xs={6}>
-            <TextField
-              label="Engine Type"
-              name="engineType"
-              value={formData.engineType || ""}
-              onChange={handleChange}
-              fullWidth
-            />
-          </Grid>
+  <FormControl fullWidth>
+    <InputLabel>Engine Type</InputLabel>
+    <Select
+      name="engineType"
+      value={formData.engineType || ""}
+      onChange={handleChange}
+    >
+      <MenuItem value="Diesel">Diesel</MenuItem>
+      <MenuItem value="Steam Turbine">Steam Turbine</MenuItem>
+      <MenuItem value="Gas Turbine">Gas Turbine</MenuItem>
+      <MenuItem value="Dual-Fuel">Dual-Fuel</MenuItem>
+      <MenuItem value="Electric">Electric</MenuItem>
+    </Select>
+  </FormControl>
+</Grid>
           <Grid item xs={6}>
             <TextField
               label="Engine Power"
@@ -541,6 +621,7 @@ export default function VesselEditForm({ open, onClose, vessel, onSave }) {
               value={formData.lastMaintenanceDate || ""}
               onChange={handleChange}
               fullWidth
+              InputLabelProps={{ shrink: true }}
             />
           </Grid>
           <Grid item xs={6}>

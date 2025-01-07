@@ -110,9 +110,6 @@ namespace backend.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("varchar(45)");
 
-                    b.Property<int>("FleetId")
-                        .HasColumnType("int");
-
                     b.Property<int>("FuelCapacity")
                         .HasColumnType("int");
 

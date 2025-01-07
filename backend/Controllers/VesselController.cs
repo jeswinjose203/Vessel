@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using backend.Data;
 using backend.Models;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace backend.Controllers
 {
@@ -12,69 +13,111 @@ namespace backend.Controllers
     public class VesselController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<VesselController> _logger;
 
-        // Constructor to inject the DbContext
-        public VesselController(ApplicationDbContext context)
+        public VesselController(ApplicationDbContext context, ILogger<VesselController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        // GET: /vesseldata
+        // GET: api/vesseldata
         [HttpGet]
         public async Task<IActionResult> GetVessels()
         {
             try
             {
-                // Fetch vessel data from the database
-                List<Vessel> vessels = await _context.Vessels.ToListAsync();
+                var vessels = await _context.Vessels.ToListAsync();
 
-                
-                // Check if no vessels are found
                 if (vessels == null || vessels.Count == 0)
                 {
+                    _logger.LogWarning("No vessel data found.");
                     return NotFound("No vessel data found.");
                 }
 
-                foreach (var vessel in vessels)
-        {
-            // Assuming the Vessel class has properties like Id, Name, and Type
-            Console.WriteLine($"Vessel ID: {vessel.Id}, Name: {vessel.VesselName}, Type: {vessel.ImoNumber}");
-        }
+                _logger.LogInformation("Fetched {Count} vessels from the database.", vessels.Count);
 
-                // Return the vessel data as JSON
                 return Ok(vessels);
             }
             catch (System.Exception ex)
             {
-                // Log the error (you can replace with a proper logging mechanism)
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                _logger.LogError(ex, "An error occurred while fetching vessel data.");
+                return StatusCode(500, "Internal server error.");
             }
         }
 
-        [HttpPost("newvesseldata")]
-        public async Task<IActionResult> CreateVessel([FromBody] Vessel vessel)
+        // // POST: api/vesseldata/newvesseldata
+        // [HttpPost("newvesseldata")]
+        // public async Task<IActionResult> CreateVessel([FromBody] Vessel vessel)
+        // {
+        //     Console.WriteLine(vessel);
+        //     if (vessel == null)
+        //     {
+        //         _logger.LogWarning("Received null vessel data.");
+        //         return BadRequest("Vessel data is required.");
+        //     }
+
+        //     try
+        //     {
+        //         _context.Vessels.Add(vessel);
+        //         await _context.SaveChangesAsync();
+
+        //         _logger.LogInformation("Created new vessel with ID {Id}.", vessel.Id);
+
+        //         return CreatedAtAction(nameof(GetVessels), new { id = vessel.Id }, vessel);
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         _logger.LogError(ex, "An error occurred while creating a new vessel.");
+        //         return StatusCode(500, "Internal server error.");
+        //     }
+        // }
+
+
+
+        // POST: api/vesseldata/newvesseldata
+[HttpPost("newvesseldata")]
+public async Task<IActionResult> CreateVessel([FromBody] Vessel vessel)
+{
+    Console.WriteLine(vessel);
+
+    if (vessel == null)
+    {
+        _logger.LogWarning("Received null vessel data.");
+        return BadRequest("Vessel data is required.");
+    }
+
+    try
+    {
+        // Check if a vessel with the same ID already exists
+        var existingVessel = await _context.Vessels.FindAsync(vessel.Id);
+
+        if (existingVessel != null)
         {
-            if (vessel == null)
-            {
-                return BadRequest("Vessel data is required.");
-            }
+            // Update the existing vessel's properties
+            _context.Entry(existingVessel).CurrentValues.SetValues(vessel);
 
-            try
-            {
-                // Add the new vessel to the context
-                _context.Vessels.Add(vessel);
-
-                // Save the changes to the database
-                await _context.SaveChangesAsync();
-
-                // Return the created vessel data with a 201 Created status
-                return CreatedAtAction(nameof(GetVessels), new { id = vessel.Id }, vessel);
-            }
-            catch (System.Exception ex)
-            {
-                // Log the error (you can replace with a proper logging mechanism)
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
+            _logger.LogInformation("Updated existing vessel with ID {Id}.", vessel.Id);
         }
+        else
+        {
+            // Add a new vessel if it doesn't exist
+            _context.Vessels.Add(vessel);
+
+            _logger.LogInformation("Created new vessel with ID {Id}.", vessel.Id);
+        }
+
+        // Save changes to the database
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetVessels), new { id = vessel.Id }, vessel);
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "An error occurred while creating/updating a vessel.");
+        return StatusCode(500, "Internal server error.");
+    }
+}
+
     }
 }

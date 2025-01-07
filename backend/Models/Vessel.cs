@@ -145,7 +145,5 @@ namespace backend.Models
 
         [MaxLength(45)]
         public string OperationalManagerName { get; set; }
-
-        public int FleetId { get; set; }
     }
 }

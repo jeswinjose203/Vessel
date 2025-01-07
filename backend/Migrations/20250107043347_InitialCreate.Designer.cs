@@ -10,8 +10,8 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250106033509_MigrationName")]
-    partial class MigrationName
+    [Migration("20250107043347_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -111,9 +111,6 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasMaxLength(45)
                         .HasColumnType("varchar(45)");
-
-                    b.Property<int>("FleetId")
-                        .HasColumnType("int");
 
                     b.Property<int>("FuelCapacity")
                         .HasColumnType("int");
