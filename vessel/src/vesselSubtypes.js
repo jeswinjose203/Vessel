@@ -11,8 +11,7 @@ const VesselSubtypes = () => {
   const [editVessel, setEditVessel] = useState(null);
 
   useEffect(() => {
-    // Fetch vessel data from the JSON file
-    fetch('/static/vesselsubtype.json')
+    fetch('http://localhost:5009/vesselData/vesselSubtypes')
       .then((response) => {
         if (!response.ok) throw new Error('Failed to fetch vessel data');
         return response.json();
@@ -20,8 +19,7 @@ const VesselSubtypes = () => {
       .then((data) => {
         setVesselData(data);
 
-        // Extract unique vessel types
-        const types = [...new Set(data.map((vessel) => vessel.vessel_type))];
+        const types = [...new Set(data.map((vessel) => vessel.vesselType))];
         setVesselTypes(types);
       })
       .catch((error) => console.error('Error fetching vessel data:', error));
@@ -32,13 +30,13 @@ const VesselSubtypes = () => {
       const subtypes = [
         ...new Set(
           vesselData
-            .filter((vessel) => vessel.vessel_type === selectedType)
-            .map((vessel) => vessel.vessel_subtype)
+            .filter((vessel) => vessel.vesselType === selectedType)
+            .map((vessel) => vessel.vesselSubtype)
         ),
       ];
       setVesselSubtypes(subtypes);
-      setSelectedSubtype(null); // Reset subtype when type changes
-      setFilteredVessels([]); // Clear filtered vessels
+      setSelectedSubtype(null);
+      setFilteredVessels([]);
     }
   }, [selectedType, vesselData]);
 
@@ -46,8 +44,8 @@ const VesselSubtypes = () => {
     if (selectedSubtype) {
       const filtered = vesselData.filter(
         (vessel) =>
-          vessel.vessel_type === selectedType &&
-          vessel.vessel_subtype === selectedSubtype
+          vessel.vesselType === selectedType &&
+          vessel.vesselSubtype === selectedSubtype
       );
       setFilteredVessels(filtered);
     }
@@ -60,20 +58,38 @@ const VesselSubtypes = () => {
   const handleEditChange = (field, value) => {
     setEditVessel({
       ...editVessel,
-      master_data: { ...editVessel.master_data, [field]: value },
+      [field]: value,
     });
   };
 
   const saveVesselChanges = () => {
-    setVesselData((prevData) =>
-      prevData.map((vessel) =>
-        vessel.vessel_type === editVessel.vessel_type &&
-        vessel.vessel_subtype === editVessel.vessel_subtype
-          ? editVessel
-          : vessel
-      )
-    );
-    setEditVessel(null);
+    // Send the updated data to the backend
+    fetch('http://localhost:5009/vesselData/updateVesselSubtype', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editVessel),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to update vessel data');
+        return response.json();
+      })
+      .then((updatedVessel) => {
+        // Update the local state with the updated vessel
+        setVesselData((prevData) =>
+          prevData.map((vessel) =>
+            vessel.id === updatedVessel.id ? updatedVessel : vessel
+          )
+        );
+        setFilteredVessels((prevFiltered) =>
+          prevFiltered.map((vessel) =>
+            vessel.id === updatedVessel.id ? updatedVessel : vessel
+          )
+        );
+        setEditVessel(null);
+      })
+      .catch((error) => console.error('Error updating vessel data:', error));
   };
 
   return (
@@ -120,16 +136,16 @@ const VesselSubtypes = () => {
               </h2>
               <div className="vessel-card-container">
                 {filteredVessels.map((vessel) => (
-                  <div key={vessel.vessel_subtype} className="vessel-card">
-                    {editVessel?.vessel_subtype === vessel.vessel_subtype ? (
+                  <div key={vessel.id} className="vessel-card">
+                    {editVessel?.id === vessel.id ? (
                       <div>
                         <div className="field">
                           <label>Onboarded Date:</label>
                           <input
                             type="date"
-                            value={editVessel.master_data.onboarded_date}
+                            value={editVessel.onboardedDate}
                             onChange={(e) =>
-                              handleEditChange('onboarded_date', e.target.value)
+                              handleEditChange('onboardedDate', e.target.value)
                             }
                           />
                         </div>
@@ -137,9 +153,9 @@ const VesselSubtypes = () => {
                           <label>Leaving Date:</label>
                           <input
                             type="date"
-                            value={editVessel.master_data.leaving_date}
+                            value={editVessel.leavingDate}
                             onChange={(e) =>
-                              handleEditChange('leaving_date', e.target.value)
+                              handleEditChange('leavingDate', e.target.value)
                             }
                           />
                         </div>
@@ -147,7 +163,7 @@ const VesselSubtypes = () => {
                           <label>Status:</label>
                           <input
                             type="text"
-                            value={editVessel.master_data.status}
+                            value={editVessel.status}
                             onChange={(e) =>
                               handleEditChange('status', e.target.value)
                             }
@@ -157,9 +173,12 @@ const VesselSubtypes = () => {
                           <label>Last Inspection Date:</label>
                           <input
                             type="date"
-                            value={editVessel.master_data.last_inspection_date}
+                            value={editVessel.lastInspectionDate}
                             onChange={(e) =>
-                              handleEditChange('last_inspection_date', e.target.value)
+                              handleEditChange(
+                                'lastInspectionDate',
+                                e.target.value
+                              )
                             }
                           />
                         </div>
@@ -167,16 +186,19 @@ const VesselSubtypes = () => {
                           <label>Next Inspection Due:</label>
                           <input
                             type="date"
-                            value={editVessel.master_data.next_inspection_due}
+                            value={editVessel.nextInspectionDue}
                             onChange={(e) =>
-                              handleEditChange('next_inspection_due', e.target.value)
+                              handleEditChange(
+                                'nextInspectionDue',
+                                e.target.value
+                              )
                             }
                           />
                         </div>
                         <div className="field">
                           <label>Remarks:</label>
                           <textarea
-                            value={editVessel.master_data.remarks}
+                            value={editVessel.remarks}
                             onChange={(e) =>
                               handleEditChange('remarks', e.target.value)
                             }
@@ -186,18 +208,16 @@ const VesselSubtypes = () => {
                       </div>
                     ) : (
                       <div>
-                        <h3>{vessel.vessel_type}</h3>
-                        <p>Subtype: {vessel.vessel_subtype}</p>
-                        <p>Status: {vessel.master_data.status}</p>
+                        <h3>{vessel.vesselType}</h3>
+                        <p>Subtype: {vessel.vesselSubtype}</p>
+                        <p>Status: {vessel.status}</p>
                         <p>
-                          Last Inspection Date:{' '}
-                          {vessel.master_data.last_inspection_date}
+                          Last Inspection Date: {vessel.lastInspectionDate}
                         </p>
                         <p>
-                          Next Inspection Due:{' '}
-                          {vessel.master_data.next_inspection_due}
+                          Next Inspection Due: {vessel.nextInspectionDue}
                         </p>
-                        <p>Remarks: {vessel.master_data.remarks}</p>
+                        <p>Remarks: {vessel.remarks}</p>
                         <button onClick={() => handleEditClick(vessel)}>
                           Edit
                         </button>

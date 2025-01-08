@@ -10,44 +10,60 @@ const VesselType = () => {
   const [lastEdited, setLastEdited] = useState(null);
 
   useEffect(() => {
-    // Fetch vessel master data from JSON
-    fetch('/static/vesselMasterData.json')
+    // Fetch vessel master data from the backend API
+    fetch('http://localhost:5009/vesseldata/vesselMasterData')
       .then((response) => {
-        if (!response.ok) throw new Error('Failed to fetch master data');
+        if (!response.ok) throw new Error('Failed to fetch vessel master data');
         return response.json();
       })
       .then((data) => {
         setVesselData(data);
-        const types = data.map((vessel) => vessel.vessel_type);
+
+        // Extract vessel types for the sidebar
+        const types = data.map((vessel) => vessel.vesselType);
         setVesselTypes(types);
       })
-      .catch((error) => console.error('Error fetching master data:', error));
+      .catch((error) => console.error('Error fetching vessel master data:', error));
   }, []);
 
   const handleTypeClick = (type) => {
     setSelectedType(type);
-    const selectedVessel = vesselData.find(
-      (vessel) => vessel.vessel_type === type
-    );
-    setMasterData(selectedVessel ? selectedVessel.master_data : {});
+    const selectedVessel = vesselData.find((vessel) => vessel.vesselType === type);
+    setMasterData(selectedVessel || {});
     setEditMode(false);
   };
 
   const handleMasterDataChange = (field, value) => {
     setMasterData({ ...masterData, [field]: value });
   };
-
   const saveMasterDataChanges = () => {
     const updatedData = vesselData.map((vessel) =>
-      vessel.vessel_type === selectedType
-        ? { ...vessel, master_data: masterData }
+      vessel.vesselType === selectedType
+        ? { ...vessel, ...masterData }
         : vessel
     );
     setVesselData(updatedData);
     setEditMode(false);
     setLastEdited(new Date().toLocaleString());
+  
+    // Send updated data to the server
+    fetch('http://localhost:5009/vesseldata/updateMasterData', {
+      method: 'PUT', // Use 'POST' if your backend expects that
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(masterData),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to update vessel master data');
+        return response.json();
+      })
+      .then((data) => {
+        console.log('Successfully updated vessel master data:', data);
+      })
+      .catch((error) => console.error('Error updating vessel master data:', error));
   };
-
+  
   return (
     <div className="vessel-container">
       <h1 className="header">Vessel Types</h1>
@@ -59,9 +75,7 @@ const VesselType = () => {
             {vesselTypes.map((type, index) => (
               <li
                 key={index}
-                className={`vessel-type-item ${
-                  type === selectedType ? 'active' : ''
-                }`}
+                className={`vessel-type-item ${type === selectedType ? 'active' : ''}`}
                 onClick={() => handleTypeClick(type)}
               >
                 {type}
@@ -81,13 +95,13 @@ const VesselType = () => {
                   {editMode ? (
                     <input
                       type="date"
-                      value={masterData.onboarded_date || ''}
+                      value={masterData.onboardedDate || ''}
                       onChange={(e) =>
-                        handleMasterDataChange('onboarded_date', e.target.value)
+                        handleMasterDataChange('onboardedDate', e.target.value)
                       }
                     />
                   ) : (
-                    <span>{masterData.onboarded_date}</span>
+                    <span>{masterData.onboardedDate}</span>
                   )}
                 </div>
                 <div className="field">
@@ -95,13 +109,13 @@ const VesselType = () => {
                   {editMode ? (
                     <input
                       type="date"
-                      value={masterData.leaving_date || ''}
+                      value={masterData.leavingDate || ''}
                       onChange={(e) =>
-                        handleMasterDataChange('leaving_date', e.target.value)
+                        handleMasterDataChange('leavingDate', e.target.value)
                       }
                     />
                   ) : (
-                    <span>{masterData.leaving_date}</span>
+                    <span>{masterData.leavingDate}</span>
                   )}
                 </div>
                 <div className="field">
@@ -123,16 +137,13 @@ const VesselType = () => {
                   {editMode ? (
                     <input
                       type="date"
-                      value={masterData.last_inspection_date || ''}
+                      value={masterData.lastInspectionDate || ''}
                       onChange={(e) =>
-                        handleMasterDataChange(
-                          'last_inspection_date',
-                          e.target.value
-                        )
+                        handleMasterDataChange('lastInspectionDate', e.target.value)
                       }
                     />
                   ) : (
-                    <span>{masterData.last_inspection_date}</span>
+                    <span>{masterData.lastInspectionDate}</span>
                   )}
                 </div>
                 <div className="field">
@@ -140,16 +151,13 @@ const VesselType = () => {
                   {editMode ? (
                     <input
                       type="date"
-                      value={masterData.next_inspection_due || ''}
+                      value={masterData.nextInspectionDue || ''}
                       onChange={(e) =>
-                        handleMasterDataChange(
-                          'next_inspection_due',
-                          e.target.value
-                        )
+                        handleMasterDataChange('nextInspectionDue', e.target.value)
                       }
                     />
                   ) : (
-                    <span>{masterData.next_inspection_due}</span>
+                    <span>{masterData.nextInspectionDue}</span>
                   )}
                 </div>
                 <div className="field">
@@ -174,9 +182,7 @@ const VesselType = () => {
                 </div>
               </div>
               {lastEdited && (
-                <p className="last-edited">
-                  Last edited on: {lastEdited}
-                </p>
+                <p className="last-edited">Last edited on: {lastEdited}</p>
               )}
             </div>
           ) : (

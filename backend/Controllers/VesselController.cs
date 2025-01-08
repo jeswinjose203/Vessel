@@ -76,48 +76,176 @@ namespace backend.Controllers
 
 
         // POST: api/vesseldata/newvesseldata
-[HttpPost("newvesseldata")]
-public async Task<IActionResult> CreateVessel([FromBody] Vessel vessel)
-{
-    Console.WriteLine(vessel);
-
-    if (vessel == null)
-    {
-        _logger.LogWarning("Received null vessel data.");
-        return BadRequest("Vessel data is required.");
-    }
-
-    try
-    {
-        // Check if a vessel with the same ID already exists
-        var existingVessel = await _context.Vessels.FindAsync(vessel.Id);
-
-        if (existingVessel != null)
+        [HttpPost("newvesseldata")]
+        public async Task<IActionResult> CreateVessel([FromBody] Vessel vessel)
         {
-            // Update the existing vessel's properties
-            _context.Entry(existingVessel).CurrentValues.SetValues(vessel);
+            Console.WriteLine(vessel);
 
-            _logger.LogInformation("Updated existing vessel with ID {Id}.", vessel.Id);
+            if (vessel == null)
+            {
+                _logger.LogWarning("Received null vessel data.");
+                return BadRequest("Vessel data is required.");
+            }
+
+            try
+            {
+                // Check if a vessel with the same ID already exists
+                var existingVessel = await _context.Vessels.FindAsync(vessel.Id);
+
+                if (existingVessel != null)
+                {
+                    // Update the existing vessel's properties
+                    _context.Entry(existingVessel).CurrentValues.SetValues(vessel);
+
+                    _logger.LogInformation("Updated existing vessel with ID {Id}.", vessel.Id);
+                }
+                else
+                {
+                    // Add a new vessel if it doesn't exist
+                    _context.Vessels.Add(vessel);
+
+                    _logger.LogInformation("Created new vessel with ID {Id}.", vessel.Id);
+                }
+
+                // Save changes to the database
+                await _context.SaveChangesAsync();
+
+                return CreatedAtAction(nameof(GetVessels), new { id = vessel.Id }, vessel);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while creating/updating a vessel.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
-        else
+
+
+
+        // PUT: /vesseldata/updateMasterData
+        [HttpPut("updateMasterData")]
+        public async Task<IActionResult> UpdateVesselMasterData([FromBody] VesselMasterData updatedMasterData)
         {
-            // Add a new vessel if it doesn't exist
-            _context.Vessels.Add(vessel);
+            if (updatedMasterData == null)
+            {
+                _logger.LogWarning("Received null vessel master data.");
+                return BadRequest("Vessel master data is required.");
+            }
 
-            _logger.LogInformation("Created new vessel with ID {Id}.", vessel.Id);
+            try
+            {
+                // Find the existing vessel master data by ID or unique identifier
+                var existingMasterData = await _context.VesselMasterDatas.FindAsync(updatedMasterData.Id);
+
+                if (existingMasterData == null)
+                {
+                    _logger.LogWarning("Vessel master data with ID {Id} not found.", updatedMasterData.Id);
+                    return NotFound($"Vessel master data with ID {updatedMasterData.Id} not found.");
+                }
+
+                // Update the properties of the existing record with the incoming data
+                _context.Entry(existingMasterData).CurrentValues.SetValues(updatedMasterData);
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Updated vessel master data with ID {Id}.", updatedMasterData.Id);
+
+                return Ok(existingMasterData);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating vessel master data.");
+                return StatusCode(500, "Internal server error.");
+            }
         }
 
-        // Save changes to the database
-        await _context.SaveChangesAsync();
+         // GET: /vesselData/vesselMasterData
+        [HttpGet("vesselMasterData")] 
+        public async Task<IActionResult> GetVesselMasterData()
+        {
+            try
+            {
+                var vesselMasterData = await _context.VesselMasterDatas.ToListAsync();
 
-        return CreatedAtAction(nameof(GetVessels), new { id = vessel.Id }, vessel);
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "An error occurred while creating/updating a vessel.");
-        return StatusCode(500, "Internal server error.");
-    }
-}
+                if (vesselMasterData == null || vesselMasterData.Count == 0)
+                {
+                    _logger.LogWarning("No VesselMasterData found.");
+                    return NotFound("No VesselMasterData found.");
+                }
 
+                _logger.LogInformation("Fetched {Count} records from VesselMasterData.", vesselMasterData.Count);
+
+                return Ok(vesselMasterData);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching VesselMasterData.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+        // PUT: /vesseldata/updateVesselSubtype
+        [HttpPut("updateVesselSubtype")]
+        public async Task<IActionResult> UpdateVesselSubtype([FromBody] VesselSubtypes updatedVesselSubtype)
+        {
+            if (updatedVesselSubtype == null)
+            {
+                _logger.LogWarning("Received null vessel subtype data.");
+                return BadRequest("Vessel subtype data is required.");
+            }
+
+            try
+            {
+                // Find the existing vessel subtype by ID or unique identifier
+                var existingVesselSubtype = await _context.VesselSubtypes.FindAsync(updatedVesselSubtype.Id);
+
+                if (existingVesselSubtype == null)
+                {
+                    _logger.LogWarning("Vessel subtype with ID {Id} not found.", updatedVesselSubtype.Id);
+                    return NotFound($"Vessel subtype with ID {updatedVesselSubtype.Id} not found.");
+                }
+
+                // Update the properties of the existing record with the incoming data
+                _context.Entry(existingVesselSubtype).CurrentValues.SetValues(updatedVesselSubtype);
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Updated vessel subtype with ID {Id}.", updatedVesselSubtype.Id);
+
+                return Ok(existingVesselSubtype);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while updating vessel subtype data.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+
+         // GET: /vesselData/vesselSubtypes
+        [HttpGet("vesselSubtypes")] 
+        public async Task<IActionResult> VesselSubtypes()
+        {
+            try
+            {
+                var vesselSubtypes = await _context.VesselSubtypes.ToListAsync();
+
+                if (vesselSubtypes == null || vesselSubtypes.Count == 0)
+                {
+                    _logger.LogWarning("No VesselMasterData found.");
+                    return NotFound("No VesselMasterData found.");
+                }
+
+                _logger.LogInformation("Fetched {Count} records from VesselMasterData.", vesselSubtypes.Count);
+
+                return Ok(vesselSubtypes);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching VesselMasterData.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
     }
 }

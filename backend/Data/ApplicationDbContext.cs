@@ -8,5 +8,10 @@ namespace backend.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
         public DbSet<Vessel> Vessels { get; set; }
+
+        public DbSet<VesselMasterData> VesselMasterDatas { get; set; }
+
+        public DbSet<VesselSubtypes> VesselSubtypes { get; set; }
+
     }
 }

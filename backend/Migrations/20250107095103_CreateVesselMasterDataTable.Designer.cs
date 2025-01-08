@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -10,9 +11,10 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250107095103_CreateVesselMasterDataTable")]
+    partial class CreateVesselMasterDataTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -290,45 +292,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("VesselMasterDatas");
-                });
-
-            modelBuilder.Entity("VesselSubtypes", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<DateTime?>("LastInspectionDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("LeavingDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("NextInspectionDue")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime?>("OnboardedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Remarks")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("VesselSubtype")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("VesselType")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VesselSubtypes");
                 });
 #pragma warning restore 612, 618
         }
