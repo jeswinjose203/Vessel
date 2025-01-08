@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import './Flags.css';
+import React, { useEffect, useState } from "react";
+import "./Flags.css";
 
 const Flags = () => {
   const [vesselData, setVesselData] = useState([]);
@@ -9,13 +9,12 @@ const Flags = () => {
   const [editMode, setEditMode] = useState(false);
   const [lastEdited, setLastEdited] = useState(null);
   const [editVesselData, setEditVesselData] = useState({});
-  const [newFlag, setNewFlag] = useState('');
 
   useEffect(() => {
-    // Fetch vessel data from JSON
-    fetch('/static/vesselData.json')
+    // Fetch vessel data from the API
+    fetch("http://localhost:5009/vesseldata/flags")
       .then((response) => {
-        if (!response.ok) throw new Error('Failed to fetch vessel data');
+        if (!response.ok) throw new Error("Failed to fetch vessel data");
         return response.json();
       })
       .then((data) => {
@@ -23,7 +22,7 @@ const Flags = () => {
         const uniqueFlags = [...new Set(data.map((vessel) => vessel.flag))];
         setFlags(uniqueFlags);
       })
-      .catch((error) => console.error('Error fetching vessel data:', error));
+      .catch((error) => console.error("Error fetching vessel data:", error));
   }, []);
 
   const handleFlagClick = (flag) => {
@@ -42,27 +41,39 @@ const Flags = () => {
   };
 
   const saveVesselChanges = () => {
-    const updatedData = vesselData.map((vessel) =>
-      vessel.id === editVesselData.id ? editVesselData : vessel
-    );
-    setVesselData(updatedData);
+    // Update the vessel on the backend
+    fetch(`http://localhost:5009/vesseldata/flags`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(editVesselData),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Failed to save vessel data");
+        return response.json();
+      })
+      .then((updatedVessel) => {
+        // Update the local state with the new vessel data
+        const updatedData = vesselData.map((vessel) =>
+          vessel.id === updatedVessel.data.id ? updatedVessel.data : vessel
+        );
+        setVesselData(updatedData);
 
-    if (selectedFlag === editVesselData.flag) {
-      setFilteredVessels(updatedData.filter((vessel) => vessel.flag === selectedFlag));
-    } else {
-      setFilteredVessels(updatedData.filter((vessel) => vessel.flag === selectedFlag));
-    }
+        // Update filtered vessels if flag matches
+        if (selectedFlag === updatedVessel.data.flag) {
+          setFilteredVessels(
+            updatedData.filter((vessel) => vessel.flag === selectedFlag)
+          );
+        } else {
+          setFilteredVessels(updatedData);
+        }
 
-    setLastEdited(new Date().toLocaleString());
-    setEditMode(false);
+        setLastEdited(new Date().toLocaleString());
+        setEditMode(false);
+      })
+      .catch((error) => console.error("Error saving vessel data:", error));
   };
-
-  // const handleAddFlag = () => {
-  //   if (newFlag && !flags.includes(newFlag)) {
-  //     setFlags([...flags, newFlag]);
-  //     setNewFlag('');
-  //   }
-  // };
 
   return (
     <div className="flags-container">
@@ -75,22 +86,13 @@ const Flags = () => {
             {flags.map((flag, index) => (
               <li
                 key={index}
-                className={`flag-item ${flag === selectedFlag ? 'active' : ''}`}
+                className={`flag-item ${flag === selectedFlag ? "active" : ""}`}
                 onClick={() => handleFlagClick(flag)}
               >
                 {flag}
               </li>
             ))}
           </ul>
-          <div className="add-flag">
-            {/* <input
-              type="text"
-              placeholder="Add New Flag"
-              value={newFlag}
-              onChange={(e) => setNewFlag(e.target.value)}
-            /> */}
-            {/* <button onClick={handleAddFlag}>Add</button> */}
-          </div>
         </div>
 
         {/* Details Section */}
@@ -104,12 +106,22 @@ const Flags = () => {
                     {editMode && editVesselData.id === vessel.id ? (
                       <div className="edit-form">
                         <div className="field">
+                          <label>Vessel Name:</label>
+                          <input
+                            type="text"
+                            value={editVesselData.vesselName || ""}
+                            onChange={(e) =>
+                              handleVesselDataChange("vesselName", e.target.value)
+                            }
+                          />
+                        </div>
+                        <div className="field">
                           <label>Onboarded Date:</label>
                           <input
                             type="date"
-                            value={editVesselData.onboarded_date || ''}
+                            value={editVesselData.onboardedDate || ""}
                             onChange={(e) =>
-                              handleVesselDataChange('onboarded_date', e.target.value)
+                              handleVesselDataChange("onboardedDate", e.target.value)
                             }
                           />
                         </div>
@@ -117,27 +129,22 @@ const Flags = () => {
                           <label>Leaving Date:</label>
                           <input
                             type="date"
-                            value={editVesselData.leaving_date || ''}
+                            value={editVesselData.leavingDate || ""}
                             onChange={(e) =>
-                              handleVesselDataChange('leaving_date', e.target.value)
+                              handleVesselDataChange("leavingDate", e.target.value)
                             }
-                          />
-                        </div>
-                        <div className="field">
-                          <label>Status:</label>
-                          <input
-                            type="text"
-                            value={editVesselData.status || ''}
-                            onChange={(e) => handleVesselDataChange('status', e.target.value)}
                           />
                         </div>
                         <div className="field">
                           <label>Last Inspection Date:</label>
                           <input
                             type="date"
-                            value={editVesselData.last_inspection_date || ''}
+                            value={editVesselData.lastInspectionDate || ""}
                             onChange={(e) =>
-                              handleVesselDataChange('last_inspection_date', e.target.value)
+                              handleVesselDataChange(
+                                "lastInspectionDate",
+                                e.target.value
+                              )
                             }
                           />
                         </div>
@@ -145,48 +152,51 @@ const Flags = () => {
                           <label>Next Inspection Due:</label>
                           <input
                             type="date"
-                            value={editVesselData.next_inspection_due || ''}
+                            value={editVesselData.nextInspectionDue || ""}
                             onChange={(e) =>
-                              handleVesselDataChange('next_inspection_due', e.target.value)
+                              handleVesselDataChange(
+                                "nextInspectionDue",
+                                e.target.value
+                              )
                             }
                           />
                         </div>
                         <div className="field">
                           <label>Remarks:</label>
                           <textarea
-                            value={editVesselData.remarks || ''}
-                            onChange={(e) => handleVesselDataChange('remarks', e.target.value)}
+                            value={editVesselData.remarks || ""}
+                            onChange={(e) =>
+                              handleVesselDataChange("remarks", e.target.value)
+                            }
                           ></textarea>
                         </div>
                         <button onClick={saveVesselChanges}>Save</button>
                       </div>
                     ) : (
                       <div>
-                        <h3>{vessel.vessel_name}</h3>
+                        <h3>{vessel.vesselName}</h3>
                         <p>
-                          <strong>IMO Number:</strong> {vessel.imo_number}
+                          <strong>Onboarded Date:</strong>{" "}
+                          {vessel.onboardedDate || "N/A"}
                         </p>
                         <p>
-                          <strong>Onboarded Date:</strong> {vessel.onboarded_date || 'N/A'}
+                          <strong>Leaving Date:</strong>{" "}
+                          {vessel.leavingDate || "N/A"}
                         </p>
                         <p>
-                          <strong>Leaving Date:</strong> {vessel.leaving_date || 'N/A'}
+                          <strong>Last Inspection Date:</strong>{" "}
+                          {vessel.lastInspectionDate || "N/A"}
                         </p>
                         <p>
-                          <strong>Status:</strong> {vessel.status || 'N/A'}
+                          <strong>Next Inspection Due:</strong>{" "}
+                          {vessel.nextInspectionDue || "N/A"}
                         </p>
                         <p>
-                          <strong>Last Inspection Date:</strong>{' '}
-                          {vessel.last_inspection_date || 'N/A'}
+                          <strong>Remarks:</strong> {vessel.remarks || "N/A"}
                         </p>
-                        <p>
-                          <strong>Next Inspection Due:</strong>{' '}
-                          {vessel.next_inspection_due || 'N/A'}
-                        </p>
-                        <p>
-                          <strong>Remarks:</strong> {vessel.remarks || 'N/A'}
-                        </p>
-                        <button onClick={() => handleEditClick(vessel)}>Edit</button>
+                        <button onClick={() => handleEditClick(vessel)}>
+                          Edit
+                        </button>
                       </div>
                     )}
                   </div>

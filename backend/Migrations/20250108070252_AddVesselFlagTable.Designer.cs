@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend.Data;
 
@@ -10,9 +11,10 @@ using backend.Data;
 namespace backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250108070252_AddVesselFlagTable")]
+    partial class AddVesselFlagTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -255,54 +257,6 @@ namespace backend.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Vessels");
-                });
-
-            modelBuilder.Entity("PortOfRegistrys", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    b.Property<string>("ClassificationSociety")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("GrossTonnage")
-                        .HasColumnType("int");
-
-                    b.Property<string>("HomePort")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("NetTonnage")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Operator")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Owner")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PortOfRegistry")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("VesselName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("YearBuilt")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PortOfRegistrys");
                 });
 
             modelBuilder.Entity("VesselFlag", b =>

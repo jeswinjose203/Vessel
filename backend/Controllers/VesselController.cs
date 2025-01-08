@@ -247,5 +247,177 @@ namespace backend.Controllers
                 return StatusCode(500, "Internal server error.");
             }
         }
+
+
+
+
+
+        // GET: vesseldata/flags
+        [HttpGet("flags")]
+        public async Task<IActionResult> GetAllVesselFlags()
+        {
+            try
+            {
+                var vesselFlags = await _context.VesselFlag.ToListAsync();
+                if (vesselFlags == null || vesselFlags.Count == 0)
+                {
+                    _logger.LogWarning("No VesselFlag data found.");
+                    return NotFound(new { message = "No VesselFlag data found." });
+                }
+
+                _logger.LogInformation("Fetched {Count} VesselFlag records.", vesselFlags.Count);
+                return Ok(vesselFlags);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching VesselFlag data.");
+                return StatusCode(500, new { message = "Internal server error." });
+            }
+        }
+
+        // POST: vesseldata/flags
+        [HttpPost("flags")]
+        public async Task<IActionResult> AddOrUpdateVesselFlag([FromBody] VesselFlag vesselFlag)
+        {
+            if (vesselFlag == null)
+            {
+                _logger.LogWarning("Received null VesselFlag data.");
+                return BadRequest(new { message = "VesselFlag data is required." });
+            }
+
+            try
+            {
+                var existingFlag = await _context.VesselFlag.FindAsync(vesselFlag.Id);
+
+                if (existingFlag != null)
+                {
+                    // Update the existing vessel flag record
+                    _context.Entry(existingFlag).CurrentValues.SetValues(vesselFlag);
+                    _logger.LogInformation("Updated VesselFlag with ID {Id}.", vesselFlag.Id);
+                }
+                else
+                {
+                    // Add a new vessel flag record
+                    await _context.VesselFlag.AddAsync(vesselFlag);
+                    _logger.LogInformation("Created new VesselFlag with ID {Id}.", vesselFlag.Id);
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "VesselFlag data processed successfully.", data = vesselFlag });
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while processing VesselFlag data.");
+                return StatusCode(500, new { message = "Internal server error." });
+            }
+        }
+
+
+
+        // GET: /vesseldata/portofregistrys
+        // [HttpGet("portofregistrys")]
+        // public async Task<IActionResult> GetAllPortOfRegistrys()
+        // {
+        //     try
+        //     {
+        //         var records = await _context.PortOfRegistrys.ToListAsync();
+        //         if (records == null || records.Count == 0)
+        //         {
+        //             _logger.LogWarning("No PortOfRegistrys data found.");
+        //             return NotFound("No PortOfRegistrys data found.");
+        //         }
+
+        //         _logger.LogInformation("Fetched {Count} PortOfRegistrys records.", records.Count);
+        //         return Ok(records);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         _logger.LogError(ex, "An error occurred while fetching PortOfRegistrys data.");
+        //         return StatusCode(500, "Internal server error.");
+        //     }
+        // }
+
+
+        // GET: vesseldata/portofregistrys
+        [HttpGet("portofregistrys")]
+        public async Task<IActionResult> GetAllPortOfRegistrys()
+        {
+            try
+            {
+                var records = await _context.PortOfRegistrys.ToListAsync();
+                if (records == null || records.Count == 0)
+                {
+                    _logger.LogWarning("No VesselFlag data found.");
+                    return NotFound(new { message = "No VesselFlag data found." });
+                }
+
+                _logger.LogInformation("Fetched {Count} VesselFlag records.", records.Count);
+                return Ok(records);
+            }
+            catch (System.Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while fetching VesselFlag data.");
+                return StatusCode(500, new { message = "Internal server error." });
+            }
+        }
+
+
+
+
+        // POST: /vesseldata/portofregistrys
+        [HttpPost("portofregistrys")]
+        public async Task<IActionResult> AddPortOfRegistry([FromBody] PortOfRegistrys record)
+        {
+            if (record == null)
+            {
+                _logger.LogWarning("Received null PortOfRegistrys data.");
+                return BadRequest("PortOfRegistrys data is required.");
+            }
+
+            try
+            {
+                await _context.PortOfRegistrys.AddAsync(record);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Created new PortOfRegistrys with ID {Id}.", record.Id);
+                return CreatedAtAction(nameof(GetAllPortOfRegistrys), new { id = record.Id }, record);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while adding PortOfRegistrys data.");
+                return StatusCode(500, "Internal server error.");
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 }

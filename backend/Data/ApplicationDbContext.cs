@@ -13,5 +13,9 @@ namespace backend.Data
 
         public DbSet<VesselSubtypes> VesselSubtypes { get; set; }
 
+        public DbSet<VesselFlag> VesselFlag { get; set; }
+
+        public DbSet<PortOfRegistrys> PortOfRegistrys { get; set; }
+
     }
 }

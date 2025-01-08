@@ -7,11 +7,10 @@ const PortOfRegistries = () => {
   const [selectedPort, setSelectedPort] = useState(null);
   const [filteredVessels, setFilteredVessels] = useState([]);
   const [editVessel, setEditVessel] = useState(null); // State for editing a vessel
-  const [newPort, setNewPort] = useState(''); // State for adding a new port
 
   useEffect(() => {
-    // Fetch vessel data from the JSON file
-    fetch('/static/portofregistries.json')
+    // Fetch vessel data from the API
+    fetch('http://localhost:5009/vesseldata/portofregistrys') // Replace with your API endpoint
       .then((response) => {
         if (!response.ok) throw new Error('Failed to fetch vessel data');
         return response.json();
@@ -40,28 +39,35 @@ const PortOfRegistries = () => {
   };
 
   const saveVesselChanges = () => {
-    setVesselData((prevData) => {
-      const updatedData = prevData.map((vessel) =>
-        vessel.id === editVessel.id ? editVessel : vessel
-      );
-      return updatedData;
-    });
+    fetch(`http://localhost:5009/vesseldata/portofregistrys`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(editVessel),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to save vessel changes');
+        return response.json();
+      })
+      .then((updatedVessel) => {
+        // Update the local state with the updated vessel data
+        setVesselData((prevData) =>
+          prevData.map((vessel) =>
+            vessel.id === updatedVessel.id ? updatedVessel : vessel
+          )
+        );
 
-    setFilteredVessels((prevData) =>
-      prevData.map((vessel) =>
-        vessel.id === editVessel.id ? editVessel : vessel
-      )
-    );
+        setFilteredVessels((prevData) =>
+          prevData.map((vessel) =>
+            vessel.id === updatedVessel.id ? updatedVessel : vessel
+          )
+        );
 
-    setEditVessel(null); // Exit edit mode
+        setEditVessel(null); // Exit edit mode
+      })
+      .catch((error) => console.error('Error saving vessel changes:', error));
   };
-
-  // const handleAddPort = () => {
-  //   if (newPort && !ports.includes(newPort)) {
-  //     setPorts([...ports, newPort]);
-  //     setNewPort('');
-  //   }
-  // };
 
   return (
     <div className="por-container">
@@ -81,15 +87,6 @@ const PortOfRegistries = () => {
               </li>
             ))}
           </ul>
-          {/* <div className="add-port">
-            <input
-              type="text"
-              placeholder="Add New Port"
-              value={newPort}
-              onChange={(e) => setNewPort(e.target.value)}
-            />
-            <button onClick={handleAddPort}>Add</button>
-          </div> */}
         </div>
 
         {/* Vessel Master Data Section */}
