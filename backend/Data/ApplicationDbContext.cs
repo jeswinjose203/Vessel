@@ -17,5 +17,7 @@ namespace backend.Data
 
         public DbSet<PortOfRegistrys> PortOfRegistrys { get; set; }
 
+        public DbSet<Employee> Employee { get; set; }
+
     }
 }

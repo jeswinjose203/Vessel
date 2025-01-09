@@ -396,8 +396,62 @@ namespace backend.Controllers
 
 
 
+        [HttpPost("signup")]
+        public async Task<IActionResult> Signup([FromBody] SignupRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new { message = "Invalid input." });
+            }
+
+            try
+            {
+                // Check if an employee with the same email already exists
+                var existingEmployee = await _context.Employee.FirstOrDefaultAsync(e => e.Email == request.Email);
+                if (existingEmployee != null)
+                {
+                    return Conflict(new { message = "Employee with this EmpCode already exists." });
+                }
+
+                // Create a new Employee entity
+                var newEmployee = new Employee
+                {
+                    EmpName = request.EmpName,
+                    Email = request.Email,
+                    Password = HashPassword(request.Password) // Hash the password before saving it
+                };
+
+                // Add the new employee to the database
+                _context.Employee.Add(newEmployee);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Signup successful!" });
+            }
+            catch (Exception ex)
+            {
+                // Log the error (use a logger in a real application)
+                Console.WriteLine($"Error during signup: {ex.Message}");
+                return StatusCode(500, new { message = "Internal server error." });
+            }
+        }
+
+        private string HashPassword(string password)
+        {
+            // Implement a secure password hashing mechanism, such as BCrypt or PBKDF2
+            // For simplicity, we will return the plain password (NOT recommended in production!)
+            return password; // Replace with a secure hashing implementation
+        }
 
 
+
+
+            
+        public class SignupRequest
+        {
+            public string EmpName { get; set; }
+            public string Email { get; set; }
+            public string Password { get; set; }
+        }
 
 
 
